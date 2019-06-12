@@ -56,13 +56,23 @@ examples: |-
     ecs_services_domain = "default.svc.cluster.local"
     egress_filter_type  = "DROP_ALL"
     load_balancer_path  = "*"
-    virtual_nodes       = [{
+    virtual_node_count  = "1"
+
+    virtual_nodes = [{
       service_discovery_hostname_prefix   = "serviceb"
       backend_virtual_service_name_prefix = "servicea"
       service_name                        = "serviceBv1"
       port                                = "8080"
       protocol                            = "http"
-  }]
+    }]
+
+    virtual_router_config_count = "1"
+
+    virtual_router_config = [{
+      "service_name_suffix" = "service" // If not provided, uses the index number of the count as the suffix
+      "port"                = "8080"    // The port used for the port mapping
+      "protocol"            = "http"    // The protocol used for the port mapping. Valid values are http and tcp
+    }]
   }
   ```
 
