@@ -49,11 +49,20 @@ description: |-
 examples: |-
   ```hcl
   module "appmesh" {
-    source     = "git::https://github.com/cloudposse/terraform-aws-app-mesh.git?ref=master"
-    namespace  = "cp"
-    stage      = "prod"
-    name       = "app"
-    cidr_block = "10.0.0.0/16"
+    source              = "git::https://github.com/cloudposse/terraform-aws-app-mesh.git?ref=master"
+    namespace           = "cp"
+    stage               = "prod"
+    name                = "app"
+    ecs_services_domain = "default.svc.cluster.local"
+    egress_filter_type  = "DROP_ALL"
+    load_balancer_path  = "*"
+    virtual_nodes       = [{
+      service_discovery_hostname_prefix   = "serviceb"
+      backend_virtual_service_name_prefix = "servicea"
+      service_name                        = "serviceBv1"
+      port                                = "8080"
+      protocol                            = "http"
+  }]
   }
   ```
 

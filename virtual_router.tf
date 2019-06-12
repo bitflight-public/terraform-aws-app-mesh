@@ -12,8 +12,8 @@ resource "aws_appmesh_virtual_router" "default" {
   spec {
     listener {
       port_mapping {
-        port     = 8080
-        protocol = "http"
+        port     = "${lookup(var.virtual_router_config[count.index], "port", count.index)}"
+        protocol = "${lookup(var.virtual_router_config[count.index], "protocol", count.index)}"
       }
     }
   }
