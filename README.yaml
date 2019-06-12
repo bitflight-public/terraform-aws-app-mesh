@@ -1,0 +1,70 @@
+---
+#
+# This is the canonical configuration for the `README.md`
+# Run `make readme` to rebuild the `README.md`
+#
+
+# Name of this project
+name: terraform-aws-app-mesh
+
+# Tags of this project
+tags:
+  - aws
+  - terraform
+  - terraform-modules
+  - platform
+  - vpc
+
+# Categories of this project
+categories:
+  - terraform-modules/networking
+
+# Logo for this project
+#logo: docs/logo.png
+
+# License of this project
+license: "APACHE2"
+
+# Canonical GitHub repo
+github_repo: cloudposse/terraform-aws-app-mesh
+
+# Badges to display
+badges:
+  - name: "Build Status"
+    image: "https://travis-ci.org/cloudposse/terraform-aws-app-mesh.svg?branch=master"
+    url: "https://travis-ci.org/cloudposse/terraform-aws-app-mesh"
+  - name: "Latest Release"
+    image: "https://img.shields.io/github/release/cloudposse/terraform-aws-app-mesh.svg"
+    url: "https://github.com/cloudposse/terraform-aws-app-mesh/releases/latest"
+  - name: "Slack Community"
+    image: "https://slack.cloudposse.com/badge.svg"
+    url: "https://slack.cloudposse.com"
+
+
+# Short description of this project
+description: |-
+  Terraform module to provision an AWS App Mesh.
+
+# How to use this project
+examples: |-
+  ```hcl
+  module "appmesh" {
+    source     = "git::https://github.com/cloudposse/terraform-aws-app-mesh.git?ref=master"
+    namespace  = "cp"
+    stage      = "prod"
+    name       = "app"
+    cidr_block = "10.0.0.0/16"
+  }
+  ```
+
+
+include:
+  - "docs/targets.md"
+  - "docs/terraform.md"
+
+# Contributors to this project
+contributors:
+  - name: "Andriy Knysh"
+    github: "aknysh"
+  - name: "Jamie Nelson"
+    github: "Jamie-BitFlight"
