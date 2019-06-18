@@ -10,3 +10,6 @@
 
 .build-harness
 build-harness
+
+.DS_Store
+**/aws-app-mesh-examples
