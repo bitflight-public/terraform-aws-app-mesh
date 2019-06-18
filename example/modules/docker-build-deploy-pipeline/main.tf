@@ -65,6 +65,7 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+
 resource "aws_iam_role_policy_attachment" "s3" {
   role       = "${aws_iam_role.default.id}"
   policy_arn = "${aws_iam_policy.s3.arn}"

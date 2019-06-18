@@ -1,7 +1,8 @@
 module "build_docker_images" {
   source = "./modules/docker-build-deploy-pipeline"
 
-  ecr_repo_names = ["colorteller", "gateway"]
+  principals_full_access = [] // This needs the codedeploy, codepipeline role
+  ecr_repo_names         = ["colorteller", "gateway"]
 
   ecr_repo_source_paths = {
     "colorteller" = "${path.module}/apps/src/colorteller"

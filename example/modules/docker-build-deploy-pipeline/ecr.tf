@@ -8,10 +8,14 @@ variable "principals_full_access" {
   default = ["*"]
 }
 
+locals {
+    principals_full_access = ["${compact(concat(var.principals_full_access, list(module.build.role_arn, aws_iam_role.default.arn)))}"]
+}
+
 resource "aws_ecr_repository_policy" "default" {
   count      = "${length(var.ecr_repo_names)}"
   repository = "${element(aws_ecr_repository.default.*.name, count.index)}"
-  policy     = "${data.aws_iam_policy_document.resource.json}"
+  policy     = "${data.aws_iam_policy_document.resource_full_access.json}"
 }
 
 resource "aws_ecr_repository" "default" {
@@ -69,7 +73,7 @@ data "aws_iam_policy_document" "resource_full_access" {
       type = "AWS"
 
       identifiers = [
-        "${var.principals_full_access}",
+        "${local.principals_full_access}",
       ]
     }
 
