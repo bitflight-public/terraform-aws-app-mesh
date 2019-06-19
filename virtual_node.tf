@@ -1,4 +1,4 @@
-module "virtual_router_label" {
+module "virtual_node_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
   attributes = ["${distinct(concat(module.label.attributes, list("mesh", "virtual", "node")))}"]
   context    = "${module.label.context}"
