@@ -40,17 +40,17 @@ output "virtual_router_config" {
 }
 
 output "virtual_router_id" {
-  value = "${aws_appmesh_virtual_router.default.id}"
+  value = "${aws_appmesh_virtual_router.default.*.id}"
 }
 
 output "virtual_router_arn" {
-  value = "${aws_appmesh_virtual_router.default.arn}"
+  value = "${aws_appmesh_virtual_router.default.*.arn}"
 }
 
 output "virtual_router_created_date" {
-  value = "${aws_appmesh_virtual_router.default.created_date}"
+  value = "${aws_appmesh_virtual_router.default.*.created_date}"
 }
 
 output "virtual_router_last_updated_date" {
-  value = "${aws_appmesh_virtual_router.default.last_updated_date}"
+  value = "${aws_appmesh_virtual_router.default.*.last_updated_date}"
 }

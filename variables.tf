@@ -2,15 +2,14 @@ variable "ecs_services_domain" {
   description = "DNS namespace used by services e.g. default.svc.cluster.local"
 }
 
-# variable "load_balancer_path" {
-#   default = "*"
-
-#   description = <<EOF
-#   A path on the public load balancer that this service
-#   should be connected to. Use * to send all load balancer
-#   traffic to this service.
-# EOF
-# }
+variable "load_balancer_path" {
+  default = "*"
+  description = <<EOF
+  A path on the public load balancer that this service
+  should be connected to. Use * to send all load balancer
+  traffic to this service.
+EOF
+}
 
 ## https://docs.aws.amazon.com/app-mesh/latest/userguide/envoy.html
 ## https://github.com/aws/aws-app-mesh-roadmap/issues/10
@@ -21,7 +20,6 @@ variable "aws_appmesh_envoy_image" {
 variable "envoy_log_level" {
   default = "info"
   description = "This can be trace, debug, info, warning, error, critical, off"
-  
 }
 variable "enable_envoy_xray_tracing" {
   default = true
@@ -29,4 +27,3 @@ variable "enable_envoy_xray_tracing" {
 variable "xray_daemon_port" {
   default = "2000"
 }
-

@@ -11,7 +11,7 @@ resource "aws_appmesh_virtual_node" "default" {
   spec {
     backend {
       virtual_service {
-        virtual_service_name = "${format("%s.%s", lookup(var.virtual_nodes[count.index], "backend_virtual_service_name"), var.ecs_services_domain)}"
+        virtual_service_name = "${format("%s.%s", lookup(var.virtual_nodes[count.index], "backend_virtual_service_name_prefix"), var.ecs_services_domain)}"
       }
     }
 
