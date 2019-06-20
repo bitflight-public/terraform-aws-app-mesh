@@ -205,18 +205,7 @@ module "vpc" {
 
 data "aws_region" "current" {}
 
-module "label" {
-  source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
-  namespace   = "cp"
-  environment = "prod"
-  delimiter   = "-"
-  name        = "colorteller"
 
-  tags = {
-    "ManagedBy" = "Terraform"
-    "ModuleBy"  = "CloudPosse"
-  }
-}
 
 variable "vpc_cidr" {
   default = "10.0.0.0/16"

@@ -2,7 +2,7 @@ data "aws_caller_identity" "default" {}
 
 data "aws_region" "default" {}
 
-resource "aws_s3_bucket" "default" {
+resource "aws_s3_bucket" "artifacts" {
   bucket = "${module.label.id}"
   acl    = "private"
   tags   = "${module.label.tags}"
@@ -65,7 +65,6 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
-
 resource "aws_iam_role_policy_attachment" "s3" {
   role       = "${aws_iam_role.default.id}"
   policy_arn = "${aws_iam_policy.s3.arn}"
@@ -88,8 +87,8 @@ data "aws_iam_policy_document" "s3" {
     ]
 
     resources = [
-      "${aws_s3_bucket.default.arn}",
-      "${aws_s3_bucket.default.arn}/*",
+      "${aws_s3_bucket.artifacts.arn}",
+      "${aws_s3_bucket.artifacts.arn}/*",
       "arn:aws:s3:::elasticbeanstalk*",
     ]
 
@@ -120,59 +119,111 @@ data "aws_iam_policy_document" "codebuild" {
   }
 }
 
+variable "build_image" {
+  description = "CLI command to list all images: aws codebuild list-curated-environment-images"
+  default     = "aws/codebuild/standard:2.0-1.10.0"
+}
+
+variable "privileged_mode" {
+  default = true
+}
+
+variable "build_compute_type" {
+  default = "BUILD_GENERAL1_SMALL"
+}
+
 module "build" {
-  source                = "git::https://github.com/cloudposse/terraform-aws-codebuild.git?ref=tags/0.9.0"
-  namespace             = "${var.namespace}"
-  name                  = "${var.name}"
-  stage                 = "${var.stage}"
-  build_image           = "${var.build_image}"
-  build_compute_type    = "${var.build_compute_type}"
-  buildspec             = "${var.buildspec}"
-  delimiter             = "${var.delimiter}"
-  attributes            = "${concat(var.attributes, list("build"))}"
-  tags                  = "${var.tags}"
-  privileged_mode       = "${var.privileged_mode}"
-  aws_region            = "${signum(length(var.aws_region)) == 1 ? var.aws_region : data.aws_region.default.name}"
-  aws_account_id        = "${signum(length(var.aws_account_id)) == 1 ? var.aws_account_id : data.aws_caller_identity.default.account_id}"
-  image_repo_name       = "${var.image_repo_name}"
-  image_tag             = "${var.image_tag}"
-  github_token          = "${var.github_oauth_token}"
-  environment_variables = "${var.environment_variables}"
+  source     = "git::https://github.com/cloudposse/terraform-aws-codebuild.git?ref=tags/0.16.0"
+  namespace  = "${module.label.namespace}"
+  name       = "${module.label.name}"
+  stage      = "${module.label.stage}"
+  delimiter  = "${module.label.delimiter}"
+  attributes = "${concat(module.label.attributes, list("build"))}"
+  # tags       = "${module.label.tags}"
+
+  build_image        = "${var.build_image}"
+  build_compute_type = "${var.build_compute_type}"
+
+  # buildspec          = "${var.buildspec}"
+  privileged_mode = "${var.privileged_mode}"
+
+  # image_repo_name       = "${var.image_repo_name}"
+  cache_enabled = "false"
+
+  # image_tag             = "${var.image_tag}"
+  # github_token          = ""
+  # environment_variables = "${var.environment_variables}"
+}
+
+variable "ecr_repo_source_paths" {
+  type = "map"
+}
+
+data "archive_file" "docker_source" {
+  count       = "${length(var.ecr_repo_names)}"
+  type        = "zip"
+  source_dir  = "${var.ecr_repo_source_paths[var.ecr_repo_names[count.index]]}"
+  output_path = "${path.module}/${var.ecr_repo_names[count.index]}.zip"
+}
+
+resource "aws_s3_bucket_object" "objects" {
+  count  = "${length(var.ecr_repo_names)}"
+  bucket = "${aws_s3_bucket.artifacts.id}"
+  key    = "${var.ecr_repo_names[count.index]}.zip"
+  source = "${data.archive_file.docker_source.*.output_path[count.index]}"
+  etag   = "${data.archive_file.docker_source.*.output_md5[count.index]}"
 }
 
 resource "aws_iam_role_policy_attachment" "codebuild_s3" {
-  role       = "${module.build.role_arn}"
+  role       = "${module.build.role_id}"
   policy_arn = "${aws_iam_policy.s3.arn}"
 }
-
 
 resource "aws_codepipeline" "source_build" {
   name     = "${module.label.id}"
   role_arn = "${aws_iam_role.default.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.default.bucket}"
+    location = "${aws_s3_bucket.artifacts.bucket}"
     type     = "S3"
   }
 
+  # https://docs.aws.amazon.com/codepipeline/latest/userguide/reference-pipeline-structure.html#action-requirements
   stage {
     name = "Source"
 
     action {
-      name             = "Source"
-      category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
-      version          = "1"
-      output_artifacts = ["code"]
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codepipeline-pipeline-stages-actions-actiontypeid.html
+      category = "Source"
+      owner    = "AWS"
+      provider = "S3"
+      version  = "1"
+      name     = "${var.ecr_repo_names[0]}SourceFromS3"
 
       configuration {
-        OAuthToken           = "${var.github_oauth_token}"
-        Owner                = "${var.repo_owner}"
-        Repo                 = "${var.repo_name}"
-        Branch               = "${var.branch}"
-        PollForSourceChanges = "${var.poll_source_changes}"
+        S3Bucket             = "${aws_s3_bucket.artifacts.id}"
+        S3ObjectKey          = "${var.ecr_repo_names[0]}.zip"
+        PollForSourceChanges = "true"
       }
+
+      output_artifacts = ["${var.ecr_repo_names[0]}"]
+    }
+
+    action {
+      # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-codepipeline-pipeline-stages-actions-actiontypeid.html
+      category = "Source"
+      owner    = "AWS"
+      provider = "S3"
+      version  = "1"
+      name     = "${var.ecr_repo_names[1]}SourceFromS3"
+
+      configuration {
+        S3Bucket             = "${aws_s3_bucket.artifacts.id}"
+        S3ObjectKey          = "${var.ecr_repo_names[1]}.zip"
+        PollForSourceChanges = "true"
+      }
+
+      output_artifacts = ["${var.ecr_repo_names[1]}"]
     }
   }
 
@@ -180,14 +231,29 @@ resource "aws_codepipeline" "source_build" {
     name = "Build"
 
     action {
-      name     = "Build"
+      name     = "${var.ecr_repo_names[0]}"
       category = "Build"
       owner    = "AWS"
       provider = "CodeBuild"
       version  = "1"
 
-      input_artifacts  = ["code"]
-      output_artifacts = ["package"]
+      input_artifacts  = ["${var.ecr_repo_names[0]}"]
+      output_artifacts = ["package0"]
+
+      configuration {
+        ProjectName = "${module.build.project_name}"
+      }
+    }
+
+    action {
+      name     = "${var.ecr_repo_names[1]}"
+      category = "Build"
+      owner    = "AWS"
+      provider = "CodeBuild"
+      version  = "1"
+
+      input_artifacts  = ["${var.ecr_repo_names[1]}"]
+      output_artifacts = ["package1"]
 
       configuration {
         ProjectName = "${module.build.project_name}"

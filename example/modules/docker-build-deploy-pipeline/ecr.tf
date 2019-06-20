@@ -3,13 +3,8 @@ variable "ecr_repo_names" {
   default = []
 }
 
-variable "principals_full_access" {
-  type    = "list"
-  default = ["*"]
-}
-
 locals {
-    principals_full_access = ["${compact(concat(var.principals_full_access, list(module.build.role_arn, aws_iam_role.default.arn)))}"]
+  principals_full_access = ["${list(module.build.role_arn, aws_iam_role.default.arn)}"]
 }
 
 resource "aws_ecr_repository_policy" "default" {
@@ -20,7 +15,7 @@ resource "aws_ecr_repository_policy" "default" {
 
 resource "aws_ecr_repository" "default" {
   count = "${length(var.ecr_repo_names)}"
-  name  = "${join(module.label.delimiter, module.label.id, list(var.ecr_repo_names[count.index], "repo"))}"
+  name  = "${join(module.label.delimiter, list(module.label.id, var.ecr_repo_names[count.index], "repo"))}"
   tags  = "${module.label.tags}"
 }
 
@@ -96,7 +91,7 @@ data "aws_iam_policy_document" "resource_full_access" {
 
 locals {
   registry_ids     = "${zipmap(var.ecr_repo_names, aws_ecr_repository.default.*.registry_id)}"
-  repository_urls    = "${zipmap(var.ecr_repo_names, aws_ecr_repository.default.*.repository_url)}"
+  repository_urls  = "${zipmap(var.ecr_repo_names, aws_ecr_repository.default.*.repository_url)}"
   repository_names = "${zipmap(var.ecr_repo_names, aws_ecr_repository.default.*.name)}"
 }
 
@@ -106,7 +101,7 @@ output "registry_ids" {
 }
 
 output "repository_urls" {
-  value       = "${local.registry_urls}"
+  value       = "${local.repository_urls}"
   description = "Map of repository URLs"
 }
 
