@@ -139,7 +139,6 @@ module "build" {
   stage      = "${module.label.stage}"
   delimiter  = "${module.label.delimiter}"
   attributes = "${concat(module.label.attributes, list("build"))}"
-  # tags       = "${module.label.tags}"
 
   build_image        = "${var.build_image}"
   build_compute_type = "${var.build_compute_type}"
