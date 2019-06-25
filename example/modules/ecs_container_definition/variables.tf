@@ -183,3 +183,7 @@ EOF
 
   default = ""
 }
+
+variable "app_mesh_virtual_node_name" {
+  default = ""
+}

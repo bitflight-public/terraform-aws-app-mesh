@@ -58,6 +58,15 @@ module "app_mesh" {
       "provider_virtual_router_name" = "colorteller-vr"
     },
   ]
+  virtual_route_http_config_count = "1"
+
+  virtual_route_http_config = [{
+    "virtual_router_name"          = "gateway-vr"
+    "route_name"                   = "colorteller-route"
+    "match_prefix"                 = "/"
+    "weighted_target_virtual_node" = "colorteller-red-vn"
+    "weighted_target_weight"       = "10"
+  }]
 
   virtual_service_node_config_count = "1"
 
