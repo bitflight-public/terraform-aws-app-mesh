@@ -1,17 +1,9 @@
-module "virtual_node_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
-  attributes = ["${distinct(concat(module.label.attributes, list("mesh", "virtual", "node")))}"]
-  context    = "${module.label.context}"
-}
-
 resource "aws_appmesh_virtual_node" "default" {
   count     = "${var.virtual_nodes_count}"
   name      = "${lookup(var.virtual_nodes[count.index], "service_name")}"
   mesh_name = "${local.app_mesh_id}"
 
   spec {
-    # backend {  #   virtual_service {  #     virtual_service_name = "${format("%s.%s", lookup(var.virtual_nodes[count.index], "backend_virtual_service_name_prefix"), var.ecs_services_domain)}"  #   }  # }
-
     listener {
       port_mapping {
         port     = "${lookup(var.virtual_nodes[count.index], "port")}"
@@ -42,12 +34,12 @@ resource "aws_appmesh_virtual_node" "backend" {
             "%s.%s", 
             split(",",
             replace(
-              lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_name_prefix")
+              lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_hostname_prefixes")
             , " ", "")), 
             var.ecs_services_domain), 
             0 % length(
               split(",",
-                lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_name_prefix")
+                lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_hostname_prefixes")
               )
             )
         )
@@ -64,12 +56,12 @@ resource "aws_appmesh_virtual_node" "backend" {
             "%s.%s", 
             split(",",
             replace(
-              lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_name_prefix")
+              lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_hostname_prefixes")
             , " ", "")), 
             var.ecs_services_domain), 
             1 % length(
               split(",",
-                lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_name_prefix")
+                lookup(var.virtual_backend_nodes[count.index], "backend_virtual_service_hostname_prefixes")
               )
             )
           )

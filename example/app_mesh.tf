@@ -44,7 +44,7 @@ module "app_mesh" {
 
   virtual_router_config = [
     {
-      "service_name_suffix" = "colorteller-vr"          // If not provided, uses the index number of the count as the suffix
+      "virtual_router_name" = "colorteller-vr"          // If not provided, uses the index number of the count as the suffix
       "port"                = "${var.colorteller_port}" // The port used for the port mapping
       "protocol"            = "http"                    // The protocol used for the port mapping. Valid values are http and tcp
     },
@@ -58,10 +58,11 @@ module "app_mesh" {
       "provider_virtual_router_name" = "colorteller-vr"
     },
   ]
+
   virtual_route_http_config_count = "1"
 
   virtual_route_http_config = [{
-    "virtual_router_name"          = "gateway-vr"
+    "virtual_router_name"          = "colorteller-vr"
     "route_name"                   = "colorteller-route"
     "match_prefix"                 = "/"
     "weighted_target_virtual_node" = "colorteller-red-vn"
@@ -72,8 +73,8 @@ module "app_mesh" {
 
   virtual_service_node_config = [
     {
-      "virtual_service_name_prefix"  = "tcpecho"
-      "provider_virtual_router_name" = "tcpecho-vn"
+      "virtual_service_name_prefix" = "tcpecho"
+      "provider_virtual_node_name"  = "tcpecho-vn"
     },
   ]
 

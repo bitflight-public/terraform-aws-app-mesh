@@ -1,19 +1,13 @@
-module "virtual_router_label" {
-  source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
-  attributes = ["${distinct(concat(module.label.attributes, list("mesh", "virtual", "router")))}"]
-  context    = "${module.label.context}"
-}
-
 resource "aws_appmesh_virtual_router" "default" {
   count     = "${var.virtual_router_config_count}"
-  name      = "${format("%s%s%s", module.virtual_router_label.id, module.virtual_router_label.delimiter, lookup(var.virtual_router_config[count.index], "service_name_suffix", count.index))}"
+  name      = "${lookup(var.virtual_router_config[count.index], "virtual_router_name")}"
   mesh_name = "${local.app_mesh_id}"
 
   spec {
     listener {
       port_mapping {
-        port     = "${lookup(var.virtual_router_config[count.index], "port", count.index)}"
-        protocol = "${lookup(var.virtual_router_config[count.index], "protocol", count.index)}"
+        port     = "${lookup(var.virtual_router_config[count.index], "port")}"
+        protocol = "${lookup(var.virtual_router_config[count.index], "protocol")}"
       }
     }
   }
@@ -21,17 +15,25 @@ resource "aws_appmesh_virtual_router" "default" {
 
 ## variables.tf
 variable "virtual_router_config_count" {
-  default = "1"
+  default = "0"
 }
 
 variable "virtual_router_config" {
   type = "list"
 
-  default = [{
-    "service_name_suffix" = "service" // If not provided, uses the index number of the count as the suffix
-    "port"                = "8080"    // The port used for the port mapping
-    "protocol"            = "http"    // The protocol used for the port mapping. Valid values are http and tcp
+  default = []
+
+  description = <<EOF
+A list of maps that specifies the virtual router details.
+
+```
+virtual_router_config = [{
+    "virtual_router_name" = "gateway-vr"
+    "port"                = "8080"       // The port used for the port mapping
+    "protocol"            = "http"       // The protocol used for the port mapping. Valid values are http and tcp
   }]
+```
+EOF
 }
 
 ## outputs.tf

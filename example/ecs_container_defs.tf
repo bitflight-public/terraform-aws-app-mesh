@@ -5,9 +5,9 @@ variable "STAGE" {
 module "container_definition_gateway" {
   source = "./modules/ecs_container_definition"
 
-  container_name  = "app"
-  container_image = "${module.build_docker_images.repository_urls["gateway"]}"
-
+  container_name             = "app"
+  container_image            = "${module.build_docker_images.repository_urls["gateway"]}"
+  app_mesh_enabled           = "true"
   app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/${module.app_mesh.virtual_node_ids[0]}"
 
   container_port = "9080"
@@ -25,9 +25,9 @@ module "container_definition_gateway" {
 module "container_definition_colorteller_red" {
   source = "./modules/ecs_container_definition"
 
-  container_name  = "app"
-  container_image = "${module.build_docker_images.repository_urls["colorteller"]}"
-
+  container_name             = "app"
+  container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
+  app_mesh_enabled           = "true"
   app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-red-vn}"
 
   container_port = "9080"
