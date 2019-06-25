@@ -151,12 +151,13 @@ module "live_task_lookup" {
   source                       = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/live_task_lookup/"
   create                       = "${var.create}"
   ecs_cluster_id               = "${var.ecs_cluster_id}"
-  ecs_service_name             =  "${module.label.id}"
+  ecs_service_name             = "${module.label.id}"
   container_name               = "${var.container_name}"
   lambda_lookup_role_policy_id = "${module.iam.lambda_lookup_role_policy_id}"
   lambda_lookup_role_arn       = "${module.iam.lambda_lookup_role_arn}"
   lookup_type                  = "${var.live_task_lookup_type}"
 }
+
 #
 # Container_definition
 #
@@ -190,11 +191,13 @@ module "container_definition" {
   healthcheck = "${var.container_healthcheck}"
 
   log_options = {
-    "awslogs-region"        = "${var.region}"
-    "awslogs-group"         = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
+    "awslogs-region" = "${var.region}"
+    "awslogs-group"  = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
+
     # "awslogs-stream-prefix" = "${var.name}"
   }
 }
+
 #
 # The ecs_task_definition sub-module creates the ECS Task definition
 # 
@@ -267,7 +270,8 @@ module "ecs_task_definition_selector" {
   live_aws_ecs_task_definition_environment_json   = "${module.live_task_lookup.environment_json}"
   live_aws_ecs_task_definition_docker_label_hash  = "${module.live_task_lookup.docker_label_hash}"
   live_aws_ecs_task_definition_secrets_hash       = "${module.live_task_lookup.secrets_hash}"
-}#
+} #
+
 # The ecs_service sub-module creates the ECS Service
 # 
 module "ecs_service" {
@@ -309,45 +313,35 @@ module "ecs_service" {
   awsvpc_security_group_ids = "${var.awsvpc_security_group_ids}"
 
   # lb_target_group_arn sets the arn of the target_group the service needs to connect to
-#   lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
+  #   lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
 
   # desired_capacity sets the initial capacity in task of the ECS Service, ignored when scheduling_strategy is DAEMON
   desired_capacity = "${var.capacity_properties_desired_capacity}"
-
   # scheduling_strategy
   scheduling_strategy = "${var.scheduling_strategy}"
-
   # with_placement_strategy, if true spread tasks over ECS Cluster based on AZ, Instance-id, Memory
   with_placement_strategy = "${var.with_placement_strategy}"
-
   # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
   # task definition, container_port sets the port for the same container.
   container_name = "${var.container_name}"
-
   container_port = "${var.container_port}"
 
   # This way we force the aws_lb_listener_rule to have finished before creating the ecs_service
-#   aws_lb_listener_rules = "${module.alb_handling.aws_lb_listener_rules}"
+  #   aws_lb_listener_rules = "${module.alb_handling.aws_lb_listener_rules}"
 
   # https://aws.amazon.com/blogs/aws/amazon-ecs-service-discovery/
   # service_discovery_enabled defaults to false
   service_discovery_enabled = "${var.service_discovery_enabled}"
-
   # Should error when service_discovery_enabled is set and no namespace_id is given
   service_discovery_namespace_id = "${var.service_discovery_properties_namespace_id}"
-
   # ttl of the service discovery records, default 60
   service_discovery_dns_ttl = "${var.service_discovery_properties_dns_ttl}"
-
   # dns_type defaults to A (AWSVPC)
   service_discovery_dns_type = "${var.service_discovery_properties_dns_type}"
-
   # service_discovery_properties_routing_policy
   service_discovery_routing_policy = "${var.service_discovery_properties_routing_policy}"
-
   # healthcheck_custom_failure_threshold needed, set to 1 by default
   service_discovery_healthcheck_custom_failure_threshold = "${var.service_discovery_properties_healthcheck_custom_failure_threshold}"
-
   # tags
   tags = "${local.tags}"
 }

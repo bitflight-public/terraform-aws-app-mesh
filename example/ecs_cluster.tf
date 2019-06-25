@@ -4,9 +4,11 @@ module "ecs_draining" {
   version = "0.1.0"
   name    = "web"
 }
+
 data "aws_region" "default" {}
+
 locals {
-userdata =<<EOF
+  userdata = <<EOF
 #!/bin/bash
 
 cat << LOGGING > /etc/awslogs/awscli.conf
@@ -65,8 +67,9 @@ service awslogs start
 
 EOF
 
-ecs_cluster_name = "${join(module.label.delimiter, list(module.label.id, "web", "cluster"))}"
+  ecs_cluster_name = "${join(module.label.delimiter, list(module.label.id, "web", "cluster"))}"
 }
+
 module "ecs_cluster" {
   source  = "blinkist/airship-ecs-cluster/aws"
   version = "0.5.1"
@@ -79,7 +82,7 @@ module "ecs_cluster" {
 
   cluster_properties {
     # ec2_key_name defines the keypair
-    ec2_key_name = ""
+    ec2_key_name        = ""
     ec2_custom_userdata = "${local.userdata}"
 
     # ec2_instance_type defines the instance type

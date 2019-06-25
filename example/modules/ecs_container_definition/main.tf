@@ -67,5 +67,105 @@ locals {
       logDriver = "${var.log_driver}"
       options   = "${var.log_options}"
     }
-  }]
+  },
+    "${local.with_app_mesh["${var.app_mesh_enabled}"]}",
+  ]
+
+  with_app_mesh = {
+    "false" = []
+
+    "true" = [{
+      "name"              = "xray-daemon"
+      "image"             = "amazon/aws-xray-daemon"
+      "user"              = "1337"
+      "essential"         = true
+      "cpu"               = 32
+      "memoryReservation" = 256
+
+      "portMappings" = [
+        {
+          "hostPort"      = 2000
+          "containerPort" = 2000
+          "protocol"      = "udp"
+        },
+      ]
+
+      logConfiguration = {
+        logDriver = "${var.log_driver}"
+        options   = "${var.log_options}"
+      }
+    },
+      {
+        "name"      = "envoy"
+        "image"     = "${var.envoy_image}"
+        "user"      = "1337"
+        "essential" = true
+
+        "ulimits" = [
+          {
+            "name"      = "nofile"
+            "hardLimit" = 15000
+            "softLimit" = 15000
+          },
+        ]
+
+        "portMappings" = [
+          {
+            "containerPort" = 9901
+            "hostPort"      = 9901
+            "protocol"      = "tcp"
+          },
+          {
+            "containerPort" = 15000
+            "hostPort"      = 15000
+            "protocol"      = "tcp"
+          },
+          {
+            "containerPort" = 15001
+            "hostPort"      = 15001
+            "protocol"      = "tcp"
+          },
+        ]
+
+        "environment" = [
+          {
+            "name"  = "APPMESH_VIRTUAL_NODE_NAME"
+            "value" = "${var.app_mesh_virtual_node_name}"
+          },
+          {
+            "name"  = "ENVOY_LOG_LEVEL"
+            "value" = "${var.envoy_log_level}"
+          },
+          {
+            "name"  = "APPMESH_XDS_ENDPOINT"
+            "value" = "${var.appmesh_xds_endpoint}"
+          },
+          {
+            "name"  = "ENABLE_ENVOY_XRAY_TRACING"
+            "value" = "1"
+          },
+          {
+            "name"  = "ENABLE_ENVOY_STATS_TAGS"
+            "value" = "1"
+          },
+        ]
+
+        logConfiguration = {
+          logDriver = "${var.log_driver}"
+          options   = "${var.log_options}"
+        }
+
+        "healthCheck" = {
+          "command" = [
+            "CMD-SHELL",
+            "curl -s http://localhost:9901/server_info | grep state | grep -q LIVE",
+          ]
+
+          "interval" = 5
+          "timeout"  = 2
+          "retries"  = 3
+        }
+      },
+    ]
+  }
 }

@@ -64,3 +64,15 @@ data "aws_iam_policy_document" "instance_policy" {
     ]
   }
 }
+
+# For ECS Service IAM Assume Role
+# ManagedPolicyArns:
+#         - arn:aws:iam::aws:policy/CloudWatchFullAccess
+#         - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+
+
+# For ECS Task Execution Role
+# ManagedPolicyArns:
+#   - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+#   - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+

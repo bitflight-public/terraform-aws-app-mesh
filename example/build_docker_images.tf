@@ -1,8 +1,9 @@
 locals {
   ecr_repo_names = ["colorteller", "gateway"]
 }
+
 module "build_docker_images" {
-  source         = "./modules/docker-build-deploy-pipeline"
+  source         = "./modules/docker_build_deploy_pipeline"
   context        = "${module.label.context}"
   ecr_repo_names = ["${local.ecr_repo_names}"]
 
@@ -22,5 +23,3 @@ resource "aws_ssm_parameter" "repository_urls" {
   type  = "String"
   value = "${module.build_docker_images.repository_urls[local.ecr_repo_names[count.index]]}"
 }
-
-

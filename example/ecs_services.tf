@@ -11,7 +11,7 @@ module "label_colorteller" {
 
 # Test that create true works
 module "colorteller_service" {
-  source = "./modules/ecs-service"
+  source = "./modules/ecs_service"
 
   create = true
 
@@ -83,7 +83,7 @@ module "label_gateway" {
 }
 
 module "gateway_service" {
-  source = "./modules/ecs-service"
+  source = "./modules/ecs_service"
 
   create  = true
   context = "${module.label_gateway.context}"

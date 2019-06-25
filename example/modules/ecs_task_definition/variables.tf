@@ -82,3 +82,36 @@ variable "mountpoints" {
   #     read_only = "false"
   # },
 }
+
+variable "task_proxy_configuration_type" {
+  default = "APPMESH"
+}
+
+variable "task_proxy_configuration_container_name" {
+  default = "envoy"
+}
+
+variable "task_proxy_configuration_properties_app_ports" {
+  default = "8080"
+}
+
+variable "task_proxy_configuration_properties_egress_ignored_ips" {
+  default = "169.254.170.2,169.254.169.254"
+}
+
+variable "task_proxy_configuration_properties_ignored_uid" {
+  default = "1337"
+}
+
+variable "task_proxy_configuration_properties_proxy_egress_port" {
+  default = "15001"
+}
+
+variable "task_proxy_configuration_properties_proxy_ingress_port" {
+  default = "15000"
+}
+
+variable "enable_app_mesh" {
+  description = "If not false, enable the aws app mesh proxy"
+  default     = "false"
+}

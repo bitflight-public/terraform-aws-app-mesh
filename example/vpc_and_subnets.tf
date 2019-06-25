@@ -1,6 +1,3 @@
-
-
-
 module "dynamic_subnets" {
   source                  = "../../terraform-aws-dynamic-subnets"
   context                 = "${module.label.context}"
@@ -37,18 +34,6 @@ module "vpc" {
 
 data "aws_region" "current" {}
 
-
-
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
-}
-
-provider "aws" {
-  version                     = "~> 2.12"
-  region                      = "us-east-2"
-  skip_requesting_account_id  = true        # this can be tricky
-  skip_get_ec2_platforms      = true
-  skip_metadata_api_check     = true
-  skip_region_validation      = true
-  skip_credentials_validation = true
 }

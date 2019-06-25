@@ -324,8 +324,6 @@ EOF
   default = {}
 }
 
-
-
 variable "kms_enabled" {
   default     = false
   description = "Whether to provide access to the supplied kms_keys. If no kms keys are passed, set this to false."
@@ -482,7 +480,6 @@ variable "service_discovery_properties_healthcheck_custom_failure_threshold" {
   default     = "1"
   description = "The number of 30-second intervals that you want service discovery to wait before it changes the health status of a service instance. Maximum value of 10."
 }
-
 
 variable "health_check_grace_period_seconds" {
   description = "The amount of seconds to wait before the first health check. Only relevant for load balanced apps. Default 5 minutes"

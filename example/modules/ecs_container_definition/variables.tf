@@ -71,7 +71,7 @@ variable "working_directory" {
 }
 
 variable "container_envvars" {
-  description = "The environment variables to pas to the container. This is a map"
+  description = "The environment variables to pass to the container. This is a map"
   default     = {}
 }
 
@@ -162,4 +162,24 @@ variable "tags" {
   description = "A map of tags to apply to all taggable resources"
   type        = "map"
   default     = {}
+}
+
+variable "envoy_image" {
+  default = "111345817488.dkr.ecr.us-west-2.amazonaws.com/aws-appmesh-envoy:v1.9.1.0-prod"
+}
+
+variable "envoy_log_level" {
+  default = "debug"
+}
+
+variable "appmesh_xds_endpoint" {
+  description = <<EOF
+  You do not need to specify anything for this environment variable. 
+  If nothing is passed, it will use the default address for the region you're running Envoy in.
+  We maintain this environment variable for anyone who may want to override this in the future 
+  (for example, if we release Envoy Management Service as an open-source project, aws/aws-app-mesh-roadmap#42). 
+  We also use it internally to test our pre-production endpoints.
+EOF
+
+  default = ""
 }
