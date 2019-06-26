@@ -3,10 +3,11 @@ env:
   parameter-store:
     REPOSITORY_URI: /CodeBuild/colorteller_repo_uri
 phases:
-  pre_build:
+  install:
     runtime-versions:
         docker: 18
         python: 3.7
+  pre_build:
     commands:
       - echo.Logging in to Amazon ECR...
       - aws --version
