@@ -22,7 +22,7 @@ module "container_definition_gateway" {
   container_name             = "app"
   container_image            = "${module.build_docker_images.repository_urls["gateway"]}"
   app_mesh_enabled           = "true"
-  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/${module.app_mesh.virtual_node_ids[0]}"
+  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/gateway-vn"
 
   log_options = {
     "awslogs-region"        = "${data.aws_region.current.name}"
@@ -48,7 +48,7 @@ module "container_definition_colorteller_red" {
   container_name             = "colorteller"
   container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
   app_mesh_enabled           = "true"
-  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-red-vn}"
+  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-red-vn"
 
   log_options = {
     "awslogs-region"        = "${data.aws_region.current.name}"
@@ -82,7 +82,7 @@ module "container_definition_colorteller_blue" {
   container_name             = "colorteller"
   container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
   app_mesh_enabled           = "true"
-  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-blue-vn}"
+  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-blue-vn"
 
   log_options = {
     "awslogs-region"        = "${data.aws_region.current.name}"
@@ -108,7 +108,7 @@ module "container_definition_colorteller_white" {
   container_name             = "colorteller"
   container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
   app_mesh_enabled           = "true"
-  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-white-vn}"
+  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-white-vn"
 
   log_options = {
     "awslogs-region"        = "${data.aws_region.current.name}"

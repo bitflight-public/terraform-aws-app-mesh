@@ -156,7 +156,7 @@ module "iam" {
 #   container_name               = "${var.container_name}"
 #   lambda_lookup_role_policy_id = "${module.iam.lambda_lookup_role_policy_id}"
 #   lambda_lookup_role_arn       = "${module.iam.lambda_lookup_role_arn}"
-#   lookup_type                  = "${var.live_task_lookup_type}"
+#   lookup_type                  = "datasource" //"${var.live_task_lookup_type}"
 # }
 
 # #
@@ -250,16 +250,16 @@ module "ecs_task_definition" {
   app_mesh_enabled  = "${var.app_mesh_enabled}"
 }
 
-# #
-# # The ecs_task_definition_selector filters ... In most cases new task definitions get created which are
-# # a copy of the live task definitions. ecs_task_definition_selector checks if there is a difference
-# # if there isn't a difference then the current live one should be used to be deployed; this
-# # way no actual deployment will happen.
+#
+# The ecs_task_definition_selector filters ... In most cases new task definitions get created which are
+# a copy of the live task definitions. ecs_task_definition_selector checks if there is a difference
+# if there isn't a difference then the current live one should be used to be deployed; this
+# way no actual deployment will happen.
 # module "ecs_task_definition_selector" {
 #   source = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/ecs_task_definition_selector/"
 
 #   # Create defines if we need to create resources inside this module
-#   create = false
+#   create = true
 
 #   ecs_container_name = "${var.container_name}"
 
@@ -296,7 +296,7 @@ module "ecs_service" {
   launch_type = "${local.launch_type}"
 
   selected_task_definition = "${format("%s:%s",module.ecs_task_definition.aws_ecs_task_definition_family, module.ecs_task_definition.aws_ecs_task_definition_revision)}" //"${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
-
+# selected_task_definition = "${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
   # deployment_controller_type sets the deployment type
   # ECS for Rolling update, and CODE_DEPLOY for Blue/Green deployment via CodeDeploy
   deployment_controller_type = "${var.deployment_controller_type}"
