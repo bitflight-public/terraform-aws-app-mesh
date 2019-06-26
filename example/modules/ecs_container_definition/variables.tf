@@ -191,3 +191,7 @@ variable "app_mesh_virtual_node_name" {
 variable "app_mesh_enabled" {
   default = "false"
 }
+
+variable "proxy_user" {
+  default = "1337"
+}

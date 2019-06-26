@@ -9,7 +9,7 @@ locals {
 # The iam sub-module creates the IAM resources needed for the ECS Service. 
 #
 module "iam" {
-  source = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/iam/"
+  source = "../ecs_iam/"
 
   # Name
   name = "${module.label.id}"
@@ -48,6 +48,7 @@ module "iam" {
 
   # The container uses secrets and needs a task execution role to get access to them
   container_secrets_enabled = "${var.container_secrets_enabled}"
+  app_mesh_enabled          = "${var.app_mesh_enabled}"
 }
 
 #
@@ -137,81 +138,85 @@ module "iam" {
 #   cognito_user_pool_domain = "${var.load_balancing_properties_cognito_user_pool_domain}"
 # }
 ###### CloudWatch Logs
-resource "aws_cloudwatch_log_group" "app" {
-  count             = "${var.create ? 1 : 0}"
-  name              = "${local.ecs_cluster_name}/${module.label.id}"
-  retention_in_days = "${var.log_retention_in_days}"
-  kms_key_id        = "${var.cloudwatch_kms_key}"
-}
+# resource "aws_cloudwatch_log_group" "app" {
+#   count             = "${var.create ? 1 : 0}"
+#   name              = "${local.ecs_cluster_name}/${module.label.id}"
+#   retention_in_days = "${var.log_retention_in_days}"
+#   kms_key_id        = "${var.cloudwatch_kms_key}"
+# }
 
 #
 # This module is used to lookup the currently used ecs task definition
 #
-module "live_task_lookup" {
-  source                       = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/live_task_lookup/"
-  create                       = "${var.create}"
-  ecs_cluster_id               = "${var.ecs_cluster_id}"
-  ecs_service_name             = "${module.label.id}"
-  container_name               = "${var.container_name}"
-  lambda_lookup_role_policy_id = "${module.iam.lambda_lookup_role_policy_id}"
-  lambda_lookup_role_arn       = "${module.iam.lambda_lookup_role_arn}"
-  lookup_type                  = "${var.live_task_lookup_type}"
-}
+# module "live_task_lookup" {
+#   source                       = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/live_task_lookup/"
+#   create                       = "${var.create}"
+#   ecs_cluster_id               = "${var.ecs_cluster_id}"
+#   ecs_service_name             = "${module.label.id}"
+#   container_name               = "${var.container_name}"
+#   lambda_lookup_role_policy_id = "${module.iam.lambda_lookup_role_policy_id}"
+#   lambda_lookup_role_arn       = "${module.iam.lambda_lookup_role_arn}"
+#   lookup_type                  = "${var.live_task_lookup_type}"
+# }
 
-#
-# Container_definition
-#
-module "container_definition" {
-  source            = "../ecs_container_definition/"
-  container_name    = "${var.container_name}"
-  container_command = ["${var.container_command}"]
+# #
+# # Container_definition
+# #
+# module "container_definition" {
+#   source            = "../ecs_container_definition/"
+#   container_name    = "${var.container_name}"
+#   container_command = ["${var.container_command}"]
 
-  # if var.force_bootstrap_container_image is enabled, we always take the terraform param as container_image
-  # otherwise we take the image from the datasource lookup
-  # when the lookup has '<ECS_SERVICE_DOES_NOT_EXIST_YET>' as result, the bootstrap image is taken
-  container_image = "${var.force_bootstrap_container_image ? var.bootstrap_container_image :
-                         ( module.live_task_lookup.image == "<ECS_SERVICE_DOES_NOT_EXIST_YET>" ? var.bootstrap_container_image : module.live_task_lookup.image )}"
+#   # if var.force_bootstrap_container_image is enabled, we always take the terraform param as container_image
+#   # otherwise we take the image from the datasource lookup
+#   # when the lookup has '<ECS_SERVICE_DOES_NOT_EXIST_YET>' as result, the bootstrap image is taken
+#   container_image = "${var.force_bootstrap_container_image ? var.bootstrap_container_image :
+#                          ( module.live_task_lookup.image == "<ECS_SERVICE_DOES_NOT_EXIST_YET>" ? var.bootstrap_container_image : module.live_task_lookup.image )}"
 
-  container_cpu                = "${var.container_cpu}"
-  container_memory             = "${var.container_memory}"
-  container_memory_reservation = "${var.container_memory_reservation}"
+#   container_cpu                = "${var.container_cpu}"
+#   container_memory             = "${var.container_memory}"
+#   container_memory_reservation = "${var.container_memory_reservation}"
 
-  container_port = "${var.container_port}"
-  host_port      = "${var.awsvpc_enabled ? var.container_port : var.host_port }"
+#   container_port = "${var.container_port}"
+#   host_port      = "${var.awsvpc_enabled ? var.container_port : var.host_port }"
 
-  hostname = "${var.awsvpc_enabled == 1 ? "" : module.label.id}"
+#   hostname = "${var.awsvpc_enabled == 1 ? "" : module.label.id}"
 
-  container_envvars = "${var.container_envvars}"
-  container_secrets = "${var.container_secrets}"
+#   container_envvars = "${var.container_envvars}"
+#   container_secrets = "${var.container_secrets}"
 
-  container_docker_labels = "${var.container_docker_labels}"
+#   container_docker_labels = "${var.container_docker_labels}"
 
-  mountpoints = ["${var.mountpoints}"]
+#   mountpoints = ["${var.mountpoints}"]
 
-  healthcheck = "${var.container_healthcheck}"
+#   healthcheck = "${var.container_healthcheck}"
 
-  log_options = {
-    "awslogs-region" = "${var.region}"
-    "awslogs-group"  = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
+#   log_options = {
+#     "awslogs-region" = "${var.region}"
+#     "awslogs-group"  = "${element(concat(aws_cloudwatch_log_group.app.*.name, list("")), 0)}"
 
-    # "awslogs-stream-prefix" = "${var.name}"
-  }
-}
+#     # "awslogs-stream-prefix" = "${var.name}"
+#   }
+# }
 
 #
 # The ecs_task_definition sub-module creates the ECS Task definition
 # 
+variable "container_definition_json" {
+  default = ""
+}
+
 module "ecs_task_definition" {
   source = "../ecs_task_definition/"
 
-  create = "${var.create}"
+  create = true
 
   # The name of the task_definition (generally, a combination of the cluster name and the service name)
   name = "${module.label.id}"
 
   cluster_name = "${local.ecs_cluster_name}"
 
-  container_definitions = "${module.container_definition.json}"
+  container_definitions = "${var.container_definition_json}"
 
   # awsvpc_enabled sets if the ecs task definition is awsvpc 
   awsvpc_enabled = "${var.awsvpc_enabled}"
@@ -242,35 +247,36 @@ module "ecs_task_definition" {
 
   # list of host paths to add as volumes to the task
   host_path_volumes = "${var.host_path_volumes}"
+  app_mesh_enabled  = "${var.app_mesh_enabled}"
 }
 
-#
-# The ecs_task_definition_selector filters ... In most cases new task definitions get created which are
-# a copy of the live task definitions. ecs_task_definition_selector checks if there is a difference
-# if there isn't a difference then the current live one should be used to be deployed; this
-# way no actual deployment will happen.
-module "ecs_task_definition_selector" {
-  source = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/ecs_task_definition_selector/"
+# #
+# # The ecs_task_definition_selector filters ... In most cases new task definitions get created which are
+# # a copy of the live task definitions. ecs_task_definition_selector checks if there is a difference
+# # if there isn't a difference then the current live one should be used to be deployed; this
+# # way no actual deployment will happen.
+# module "ecs_task_definition_selector" {
+#   source = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/ecs_task_definition_selector/"
 
-  # Create defines if we need to create resources inside this module
-  create = "${var.create}"
+#   # Create defines if we need to create resources inside this module
+#   create = false
 
-  ecs_container_name = "${var.container_name}"
+#   ecs_container_name = "${var.container_name}"
 
-  # Terraform state task definition
-  aws_ecs_task_definition_family   = "${module.ecs_task_definition.aws_ecs_task_definition_family}"
-  aws_ecs_task_definition_revision = "${module.ecs_task_definition.aws_ecs_task_definition_revision}"
+#   # Terraform state task definition
+#   aws_ecs_task_definition_family   = "${module.ecs_task_definition.aws_ecs_task_definition_family}"
+#   aws_ecs_task_definition_revision = "${module.ecs_task_definition.aws_ecs_task_definition_revision}"
 
-  # Live ecs task definition
-  live_aws_ecs_task_definition_revision           = "${module.live_task_lookup.revision}"
-  live_aws_ecs_task_definition_image              = "${module.live_task_lookup.image}"
-  live_aws_ecs_task_definition_cpu                = "${module.live_task_lookup.cpu}"
-  live_aws_ecs_task_definition_memory             = "${module.live_task_lookup.memory}"
-  live_aws_ecs_task_definition_memory_reservation = "${module.live_task_lookup.memory_reservation}"
-  live_aws_ecs_task_definition_environment_json   = "${module.live_task_lookup.environment_json}"
-  live_aws_ecs_task_definition_docker_label_hash  = "${module.live_task_lookup.docker_label_hash}"
-  live_aws_ecs_task_definition_secrets_hash       = "${module.live_task_lookup.secrets_hash}"
-} #
+#   # Live ecs task definition
+#   live_aws_ecs_task_definition_revision           = "${module.live_task_lookup.revision}"
+#   live_aws_ecs_task_definition_image              = "${module.live_task_lookup.image}"
+#   live_aws_ecs_task_definition_cpu                = "${module.live_task_lookup.cpu}"
+#   live_aws_ecs_task_definition_memory             = "${module.live_task_lookup.memory}"
+#   live_aws_ecs_task_definition_memory_reservation = "${module.live_task_lookup.memory_reservation}"
+#   live_aws_ecs_task_definition_environment_json   = "${module.live_task_lookup.environment_json}"
+#   live_aws_ecs_task_definition_docker_label_hash  = "${module.live_task_lookup.docker_label_hash}"
+#   live_aws_ecs_task_definition_secrets_hash       = "${module.live_task_lookup.secrets_hash}"
+# } #
 
 # The ecs_service sub-module creates the ECS Service
 # 
@@ -289,7 +295,7 @@ module "ecs_service" {
   # launch_type either EC2 or FARGATE
   launch_type = "${local.launch_type}"
 
-  selected_task_definition = "${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
+  selected_task_definition = "${format("%s:%s",module.ecs_task_definition.aws_ecs_task_definition_family, module.ecs_task_definition.aws_ecs_task_definition_revision)}" //"${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
 
   # deployment_controller_type sets the deployment type
   # ECS for Rolling update, and CODE_DEPLOY for Blue/Green deployment via CodeDeploy

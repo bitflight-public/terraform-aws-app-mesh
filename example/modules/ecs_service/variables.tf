@@ -485,3 +485,7 @@ variable "health_check_grace_period_seconds" {
   description = "The amount of seconds to wait before the first health check. Only relevant for load balanced apps. Default 5 minutes"
   default     = 300
 }
+
+variable "app_mesh_enabled" {
+  default = false
+}

@@ -111,7 +111,7 @@ variable "task_proxy_configuration_properties_proxy_ingress_port" {
   default = "15000"
 }
 
-variable "enable_app_mesh" {
+variable "app_mesh_enabled" {
   description = "If not false, enable the aws app mesh proxy"
-  default     = "false"
+  default     = false
 }

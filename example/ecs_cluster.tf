@@ -86,13 +86,13 @@ module "ecs_cluster" {
     ec2_custom_userdata = "${local.userdata}"
 
     # ec2_instance_type defines the instance type
-    ec2_instance_type = "t3.small"
+    ec2_instance_type = "c4.large"
 
     # ec2_asg_min defines the minimum size of the autoscaling group
-    ec2_asg_min = "3"
+    ec2_asg_min = "5"
 
     # ec2_asg_max defines the maximum size of the autoscaling group
-    ec2_asg_max = "3"
+    ec2_asg_max = "5"
 
     # ec2_disk_size defines the size in GB of the non-root volume of the EC2 Instance
     ec2_disk_size = "100"

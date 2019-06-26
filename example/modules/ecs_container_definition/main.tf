@@ -77,15 +77,15 @@ locals {
     "true" = [{
       "name"              = "xray-daemon"
       "image"             = "amazon/aws-xray-daemon"
-      "user"              = "1337"
-      "essential"         = true
-      "cpu"               = 32
-      "memoryReservation" = 256
+      "user"              = "${format("%s%s", local.safe_search_replace_string, var.proxy_user)}"
+      "essential"         = "${var.essential}"
+      "cpu"               = "32"
+      "memoryReservation" = "256"
 
       "portMappings" = [
         {
-          "hostPort"      = 2000
-          "containerPort" = 2000
+          "hostPort"      = "2000"
+          "containerPort" = "2000"
           "protocol"      = "udp"
         },
       ]
@@ -96,33 +96,35 @@ locals {
       }
     },
       {
-        "name"      = "envoy"
-        "image"     = "${var.envoy_image}"
-        "user"      = "1337"
-        "essential" = true
+        "name"              = "envoy"
+        "image"             = "${var.envoy_image}"
+        "user"              = "${format("%s%s", local.safe_search_replace_string, var.proxy_user)}"
+        "essential"         = "${var.essential}"
+        "cpu"               = "32"
+        "memoryReservation" = "256"
 
         "ulimits" = [
           {
             "name"      = "nofile"
-            "hardLimit" = 15000
-            "softLimit" = 15000
+            "hardLimit" = "15000"
+            "softLimit" = "15000"
           },
         ]
 
         "portMappings" = [
           {
-            "containerPort" = 9901
-            "hostPort"      = 9901
+            "containerPort" = "9901"
+            "hostPort"      = "9901"
             "protocol"      = "tcp"
           },
           {
-            "containerPort" = 15000
-            "hostPort"      = 15000
+            "containerPort" = "15000"
+            "hostPort"      = "15000"
             "protocol"      = "tcp"
           },
           {
-            "containerPort" = 15001
-            "hostPort"      = 15001
+            "containerPort" = "15001"
+            "hostPort"      = "15001"
             "protocol"      = "tcp"
           },
         ]

@@ -1,12 +1,12 @@
 module "dynamic_subnets" {
-  source                  = "../../terraform-aws-dynamic-subnets"
+  source                  = "git::https://github.com/bitflight-public/terraform-aws-dynamic-subnets.git?ref=feature/set_subnet_counts"
   context                 = "${module.label.context}"
   region                  = "${data.aws_region.current.name}"
-  availability_zones      = ["${data.aws_region.current.name}a", "${data.aws_region.current.name}b"] // Optional list of AZ's to restrict it to
+  availability_zones      = ["${data.aws_region.current.name}a", "${data.aws_region.current.name}b"]                                   // Optional list of AZ's to restrict it to
   vpc_id                  = "${module.vpc.vpc_id}"
   igw_id                  = "${module.vpc.igw_id}"
-  public_subnet_count     = "2"                                                                      // Two public zones for the load balancers
-  private_subnet_count    = "3"                                                                      // Four private zones for the 
+  public_subnet_count     = "2"                                                                                                        // Two public zones for the load balancers
+  private_subnet_count    = "3"                                                                                                        // Four private zones for the 
   map_public_ip_on_launch = "true"
 
   ## You can use nat_gateway_enabled or nat_instance_enabled
@@ -16,6 +16,10 @@ module "dynamic_subnets" {
   nat_instance_enabled = "false"
 
   nat_gateway_enabled = "true"
+
+  providers {
+    "aws" = "aws"
+  }
 }
 
 ## VPC module doesn't have the latest version of null_label 

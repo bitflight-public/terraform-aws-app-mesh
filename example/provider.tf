@@ -1,5 +1,5 @@
 provider "aws" {
-  version                     = "~> 2.12"
+  #   version                     = "~> 2.15"
   region                      = "us-east-2"
   skip_requesting_account_id  = true        # this can be tricky
   skip_get_ec2_platforms      = true
@@ -7,3 +7,5 @@ provider "aws" {
   skip_region_validation      = true
   skip_credentials_validation = true
 }
+
+provider "null" {}

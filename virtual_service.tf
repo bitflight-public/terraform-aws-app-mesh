@@ -69,7 +69,7 @@ variable "virtual_service_router_config" {
 ```hcl
   virtual_service_router_config = [{
     "virtual_service_name_prefix"           = "colorteller" // .appmesh.local
-    "provider_virtual_router_name"   = "colorteller-vr"
+    "provider_virtual_router_name"          = "colorteller-vr"
   }]
 ```
 EOF

@@ -59,15 +59,28 @@ module "app_mesh" {
     },
   ]
 
-  virtual_route_http_config_count = "1"
+  virtual_route_http_config_count = "2"
 
-  virtual_route_http_config = [{
-    "virtual_router_name"          = "colorteller-vr"
-    "route_name"                   = "colorteller-route"
-    "match_prefix"                 = "/"
-    "weighted_target_virtual_node" = "colorteller-red-vn"
-    "weighted_target_weight"       = "10"
-  }]
+  virtual_route_http_config = [
+    {
+      "virtual_router_name"          = "colorteller-vr"
+      "match_prefix"                 = "/"
+      "weighted_target_virtual_node" = "colorteller-red-vn"
+      "weighted_target_weight"       = "10"
+    },
+    {
+      "virtual_router_name"          = "colorteller-vr"
+      "match_prefix"                 = "/"
+      "weighted_target_virtual_node" = "colorteller-blue-vn"
+      "weighted_target_weight"       = "10"
+    },
+    {
+      "virtual_router_name"          = "colorteller-vr"
+      "match_prefix"                 = "/"
+      "weighted_target_virtual_node" = "colorteller-white-vn"
+      "weighted_target_weight"       = "10"
+    },
+  ]
 
   virtual_service_node_config_count = "1"
 
