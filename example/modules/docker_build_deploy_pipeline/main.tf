@@ -6,6 +6,19 @@ resource "aws_s3_bucket" "artifacts" {
   bucket = "${module.label.id}"
   acl    = "private"
   tags   = "${module.label.tags}"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    prefix  = "/"
+    enabled = true
+
+    noncurrent_version_expiration {
+      days = 30
+    }
+  }
 }
 
 resource "aws_iam_role" "default" {

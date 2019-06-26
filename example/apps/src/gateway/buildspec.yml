@@ -4,6 +4,9 @@ env:
     REPOSITORY_URI: /CodeBuild/gateway_repo_uri
 phases:
   pre_build:
+    runtime-versions:
+        docker: 18
+        python: 3.7
     commands:
       - echo.Logging in to Amazon ECR...
       - aws --version
