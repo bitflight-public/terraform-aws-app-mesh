@@ -16,6 +16,30 @@ resource "aws_cloudwatch_log_group" "app" {
   kms_key_id        = "${var.cloudwatch_kms_key}"
 }
 
+module "container_definition_tcpecho" {
+  source = "./modules/ecs_container_definition"
+
+  container_name   = "tcpecho"
+  container_image  = "cjimti/go-echo"
+  app_mesh_enabled = "false"
+
+  log_options = {
+    "awslogs-region"        = "${data.aws_region.current.name}"
+    "awslogs-group"         = "${aws_cloudwatch_log_group.app.name}"
+    "awslogs-stream-prefix" = "tcpecho"
+  }
+
+  container_port = "${var.tcpecho_port}"
+  host_port      = "${var.tcpecho_port}"
+  protocol       = "tcp"
+  essential      = "true"
+
+  container_envvars = {
+    TCP_PORT  = "${var.tcpecho_port}"
+    NODE_NAME = "mesh/${module.app_mesh.mesh_id}/virtualNode/tcpecho-vn"
+  }
+}
+
 module "container_definition_gateway" {
   source = "./modules/ecs_container_definition"
 
@@ -30,13 +54,13 @@ module "container_definition_gateway" {
     "awslogs-stream-prefix" = "app"
   }
 
-  container_port = "9080"
-  host_port      = "9080"
+  container_port = "${var.colorteller_port}"
+  host_port      = "${var.colorteller_port}"
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "9080"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "9080")}"
+    SERVER_PORT           = "${var.colorteller_port}"
+    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
     TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
     STAGE                 = "${var.STAGE}"
   }
@@ -56,13 +80,13 @@ module "container_definition_colorteller_red" {
     "awslogs-stream-prefix" = "colorteller-red"
   }
 
-  container_port = "9080"
-  host_port      = "9080"
+  container_port = "${var.colorteller_port}"
+  host_port      = "${var.colorteller_port}"
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "9080"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "9080")}"
+    SERVER_PORT           = "${var.colorteller_port}"
+    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
     TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
     STAGE                 = "${var.STAGE}"
   }
@@ -90,13 +114,13 @@ module "container_definition_colorteller_blue" {
     "awslogs-stream-prefix" = "colorteller-blue"
   }
 
-  container_port = "9080"
-  host_port      = "9080"
+  container_port = "${var.colorteller_port}"
+  host_port      = "${var.colorteller_port}"
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "9080"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "9080")}"
+    SERVER_PORT           = "${var.colorteller_port}"
+    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
     TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
     STAGE                 = "${var.STAGE}"
   }
@@ -116,13 +140,13 @@ module "container_definition_colorteller_white" {
     "awslogs-stream-prefix" = "colorteller-white"
   }
 
-  container_port = "9080"
-  host_port      = "9080"
+  container_port = "${var.colorteller_port}"
+  host_port      = "${var.colorteller_port}"
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "9080"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "9080")}"
+    SERVER_PORT           = "${var.colorteller_port}"
+    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
     TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
     STAGE                 = "${var.STAGE}"
   }

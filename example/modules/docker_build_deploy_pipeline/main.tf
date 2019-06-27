@@ -3,9 +3,10 @@ data "aws_caller_identity" "default" {}
 data "aws_region" "default" {}
 
 resource "aws_s3_bucket" "artifacts" {
-  bucket = "${module.label.id}"
-  acl    = "private"
-  tags   = "${module.label.tags}"
+  bucket        = "${module.label.id}"
+  acl           = "private"
+  tags          = "${module.label.tags}"
+  force_destroy = "true"
 
   versioning {
     enabled = true

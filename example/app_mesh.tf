@@ -97,7 +97,7 @@ module "app_mesh" {
     backend_virtual_service_hostname_prefixes = "tcpecho,colorteller"
     service_discovery_hostname_prefix         = "colorteller"
     service_name                              = "colorgateway-vn"
-    port                                      = "8080"
+    port                                      = "${var.colorteller_port}"
     protocol                                  = "http"
   }]
 }

@@ -3,7 +3,7 @@ locals {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  count = "${(var.create && (local.docker_volume_name == "") && var.app_mesh_enabled == false) ? 1 : 0 }"
+  count = "${(var.create && (local.docker_volume_name == "") && var.app_mesh_enabled != true) ? 1 : 0 }"
 
   family        = "${var.name}"
   task_role_arn = "${var.ecs_taskrole_arn}"
@@ -31,7 +31,7 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_ecs_task_definition" "app_with_app_mesh" {
-  count = "${(var.create && (local.docker_volume_name == "") && var.app_mesh_enabled != false ) ? 1 : 0 }"
+  count = "${(var.create && (local.docker_volume_name == "") && var.app_mesh_enabled == true ) ? 1 : 0 }"
 
   family        = "${var.name}"
   task_role_arn = "${var.ecs_taskrole_arn}"
@@ -72,7 +72,7 @@ resource "aws_ecs_task_definition" "app_with_app_mesh" {
 }
 
 resource "aws_ecs_task_definition" "app_with_docker_volume" {
-  count = "${(var.create && (local.docker_volume_name != "") && var.app_mesh_enabled == false) ? 1 : 0 }"
+  count = "${(var.create && (local.docker_volume_name != "") && var.app_mesh_enabled != true) ? 1 : 0 }"
 
   family        = "${var.name}"
   task_role_arn = "${var.ecs_taskrole_arn}"
@@ -113,7 +113,7 @@ resource "aws_ecs_task_definition" "app_with_docker_volume" {
 }
 
 resource "aws_ecs_task_definition" "app_with_docker_volume_and_app_mesh" {
-  count = "${(var.create && (local.docker_volume_name != "") && var.app_mesh_enabled != false) ? 1 : 0 }"
+  count = "${(var.create && (local.docker_volume_name != "") && var.app_mesh_enabled == true) ? 1 : 0 }"
 
   family        = "${var.name}"
   task_role_arn = "${var.ecs_taskrole_arn}"

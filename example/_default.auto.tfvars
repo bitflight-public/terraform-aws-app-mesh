@@ -7,3 +7,5 @@
     "ManagedBy" = "Terraform"
     "ModuleBy"  = "CloudPosse"
   }
+
+  public_domain_name = "hf-cloud.org"

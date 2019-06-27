@@ -51,92 +51,93 @@ module "iam" {
   app_mesh_enabled          = "${var.app_mesh_enabled}"
 }
 
-#
-# The lb-handling sub-module creates everything regarding the connection of an ecs service to an Application Load Balancer# or or Network Load Balancer, it is called alb_handling for legacy reasons, TODO hcl2 refactor
-# module "alb_handling" {
-#   source = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/alb_handling/"
+## The lb-handling sub-module creates everything regarding the connection of an ecs service to an Application Load Balancer
+## or or Network Load Balancer, it is called alb_handling for legacy reasons, TODO hcl2 refactor
+module "alb_handling" {
+  # source = "git::https://github.com/bitflight-public/terraform-aws-airship-ecs-service//modules/alb_handling/?ref=bug/listener_not_created"
+  source       = "git::https://github.com/blinkist/terraform-aws-airship-ecs-service//modules/alb_handling/?ref=master"
+  name         = "${module.label.id}"
+  cluster_name = "alb"
 
-#   name         = "${var.name}"
-#   cluster_name = "${local.ecs_cluster_name}"
+  # Create defines if we need to create resources inside this module
+  create = "${var.create || var.load_balancing_type != "none"}"
 
-#   # Create defines if we need to create resources inside this module
-#   create = "${var.create}"
+  # load_balancing_type sets the type, either "none", "application", or "network"
+  load_balancing_type = "${var.load_balancing_type}"
 
-#   # load_balancing_type sets the type, either "none", "application", or "network"
-#   load_balancing_type = "${var.load_balancing_type}"
+  # lb_vpc_id sets the VPC ID of where the LB resides
+  lb_vpc_id = "${var.load_balancing_properties_lb_vpc_id}"
 
-#   # lb_vpc_id sets the VPC ID of where the LB resides
-#   lb_vpc_id = "${var.load_balancing_properties_lb_vpc_id}"
+  # lb_arn defines the arn of the LB
+  lb_arn = "${var.load_balancing_properties_lb_arn}"
 
-#   # lb_arn defines the arn of the LB
-#   lb_arn = "${var.load_balancing_properties_lb_arn}"
+  # lb_listener_arn is the arn of the listener ( HTTP )
+  lb_listener_arn = "${var.load_balancing_properties_lb_listener_arn}"
 
-#   # lb_listener_arn is the arn of the listener ( HTTP )
-#   lb_listener_arn = "${var.load_balancing_properties_lb_listener_arn}"
+  # lb_listener_arn_https is the arn of the listener ( HTTPS )
+  lb_listener_arn_https = "${var.load_balancing_properties_lb_listener_arn_https}"
 
-#   # lb_listener_arn_https is the arn of the listener ( HTTPS )
-#   lb_listener_arn_https = "${var.load_balancing_properties_lb_listener_arn_https}"
+  # nlb_listener_port sets the listener port of the nlb listener
+  nlb_listener_port = "${var.load_balancing_properties_nlb_listener_port}"
 
-#   # nlb_listener_port sets the listener port of the nlb listener
-#   nlb_listener_port = "${var.load_balancing_properties_nlb_listener_port}"
+  # target_group_port sets the port of the target group, by default 80 
+  target_group_port = "${var.load_balancing_properties_target_group_port}"
 
-#   # target_group_port sets the port of the target group, by default 80 
-#   target_group_port = "${var.load_balancing_properties_target_group_port}"
+  # unhealthy_threshold defines the threashold for the target_group after which a service is seen as unhealthy.
+  unhealthy_threshold = "${var.load_balancing_properties_unhealthy_threshold}"
 
-#   # unhealthy_threshold defines the threashold for the target_group after which a service is seen as unhealthy.
-#   unhealthy_threshold = "${var.load_balancing_properties_unhealthy_threshold}"
+  healthy_threshold = "${var.load_balancing_properties_healthy_threshold}"
 
-#   healthy_threshold = "${var.load_balancing_properties_healthy_threshold}"
+  # if https_enabled is true, listener rules are made for the ssl listener
+  https_enabled = "${var.load_balancing_properties_https_enabled}"
 
-#   # if https_enabled is true, listener rules are made for the ssl listener
-#   https_enabled = "${var.load_balancing_properties_https_enabled}"
+  # Sets the deregistration_delay for the targetgroup
+  deregistration_delay = "${var.load_balancing_properties_deregistration_delay}"
 
-#   # Sets the deregistration_delay for the targetgroup
-#   deregistration_delay = "${var.load_balancing_properties_deregistration_delay}"
+  # route53_record_type sets the record type of the route53 record, can be ALIAS, CNAME or NONE,  defaults to ALIAS
+  # In case of NONE no record will be made
+  route53_record_type = "${var.load_balancing_properties_route53_record_type}"
 
-#   # route53_record_type sets the record type of the route53 record, can be ALIAS, CNAME or NONE,  defaults to ALIAS
-#   # In case of NONE no record will be made
-#   route53_record_type = "${var.load_balancing_properties_route53_record_type}"
+  # Sets the zone in which the sub-domain will be added for this service
+  route53_zone_id = "${var.load_balancing_properties_route53_zone_id}"
 
-#   # Sets the zone in which the sub-domain will be added for this service
-#   route53_zone_id = "${var.load_balancing_properties_route53_zone_id}"
+  # Sets name for the sub-domain, we default to *name
+  route53_name = "${var.load_balancing_properties_route53_custom_name == "" ? var.name : var.load_balancing_properties_route53_custom_name}"
 
-#   # Sets name for the sub-domain, we default to *name
-#   route53_name = "${var.load_balancing_properties_route53_custom_name == "" ? var.name : var.load_balancing_properties_route53_custom_name}"
+  # route53_a_record_identifier sets the identifier of the weighted Alias A record
+  route53_record_identifier = "${var.load_balancing_properties_route53_record_identifier}"
 
-#   # route53_a_record_identifier sets the identifier of the weighted Alias A record
-#   route53_record_identifier = "${var.load_balancing_properties_route53_record_identifier}"
+  # custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
+  custom_listen_hosts = "${var.load_balancing_properties_custom_listen_hosts}"
 
-#   # custom_listen_hosts will be added as a host route rule as aws_lb_listener_rule to the given service e.g. www.domain.com -> Service
-#   custom_listen_hosts = "${var.load_balancing_properties_custom_listen_hosts}"
+  custom_listen_hosts_count = "${var.load_balancing_properties_custom_listen_hosts_count}"
 
-#   custom_listen_hosts_count = "${var.load_balancing_properties_custom_listen_hosts_count}"
+  # redirect_http_to_https creates lb listeners which redirect incoming http traffic to https
+  redirect_http_to_https = "${var.load_balancing_properties_redirect_http_to_https}"
 
-#   # redirect_http_to_https creates lb listeners which redirect incoming http traffic to https
-#   redirect_http_to_https = "${var.load_balancing_properties_redirect_http_to_https}"
+  # health_uri defines which health-check uri the target group needs to check on for health_check
+  health_uri = "${var.load_balancing_properties_health_uri}"
 
-#   # health_uri defines which health-check uri the target group needs to check on for health_check
-#   health_uri = "${var.load_balancing_properties_health_uri}"
+  # The expected HTTP status for the health check to be marked healthy
+  # You can specify multiple values (for example, "200,202") or a range of values (for example, "200-299")
+  health_matcher = "${var.load_balancing_properties_health_matcher}"
 
-#   # The expected HTTP status for the health check to be marked healthy
-#   # You can specify multiple values (for example, "200,202") or a range of values (for example, "200-299")
-#   health_matcher = "${var.load_balancing_properties_health_matcher}"
+  # target_type is the alb_target_group target, in case of EC2 it's instance, in case of FARGATE it's IP
+  target_type = "${var.awsvpc_enabled ? "ip" : "instance"}"
 
-#   # target_type is the alb_target_group target, in case of EC2 it's instance, in case of FARGATE it's IP
-#   target_type = "${var.awsvpc_enabled ? "ip" : "instance"}"
+  # cognito_auth_enabled is set when cognito authentication is used for the https listener
+  cognito_auth_enabled = "${var.load_balancing_properties_cognito_auth_enabled}"
 
-#   # cognito_auth_enabled is set when cognito authentication is used for the https listener
-#   cognito_auth_enabled = "${var.load_balancing_properties_cognito_auth_enabled}"
+  # cognito_user_pool_arn defines the cognito user pool arn for the added cognito authentication
+  cognito_user_pool_arn = "${var.load_balancing_properties_cognito_user_pool_arn}"
 
-#   # cognito_user_pool_arn defines the cognito user pool arn for the added cognito authentication
-#   cognito_user_pool_arn = "${var.load_balancing_properties_cognito_user_pool_arn}"
+  # cognito_user_pool_client_id defines the cognito_user_pool_client_id
+  cognito_user_pool_client_id = "${var.load_balancing_properties_cognito_user_pool_client_id}"
 
-#   # cognito_user_pool_client_id defines the cognito_user_pool_client_id
-#   cognito_user_pool_client_id = "${var.load_balancing_properties_cognito_user_pool_client_id}"
+  # cognito_user_pool_domain sets the domain of the cognito_user_pool
+  cognito_user_pool_domain = "${var.load_balancing_properties_cognito_user_pool_domain}"
+}
 
-#   # cognito_user_pool_domain sets the domain of the cognito_user_pool
-#   cognito_user_pool_domain = "${var.load_balancing_properties_cognito_user_pool_domain}"
-# }
 ###### CloudWatch Logs
 # resource "aws_cloudwatch_log_group" "app" {
 #   count             = "${var.create ? 1 : 0}"
@@ -296,7 +297,8 @@ module "ecs_service" {
   launch_type = "${local.launch_type}"
 
   selected_task_definition = "${format("%s:%s",module.ecs_task_definition.aws_ecs_task_definition_family, module.ecs_task_definition.aws_ecs_task_definition_revision)}" //"${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
-# selected_task_definition = "${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
+
+  # selected_task_definition = "${module.ecs_task_definition_selector.selected_task_definition_for_deployment}"
   # deployment_controller_type sets the deployment type
   # ECS for Rolling update, and CODE_DEPLOY for Blue/Green deployment via CodeDeploy
   deployment_controller_type = "${var.deployment_controller_type}"
@@ -319,17 +321,21 @@ module "ecs_service" {
   awsvpc_security_group_ids = "${var.awsvpc_security_group_ids}"
 
   # lb_target_group_arn sets the arn of the target_group the service needs to connect to
-  #   lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
+  lb_target_group_arn = "${module.alb_handling.lb_target_group_arn}"
 
   # desired_capacity sets the initial capacity in task of the ECS Service, ignored when scheduling_strategy is DAEMON
   desired_capacity = "${var.capacity_properties_desired_capacity}"
+
   # scheduling_strategy
   scheduling_strategy = "${var.scheduling_strategy}"
+
   # with_placement_strategy, if true spread tasks over ECS Cluster based on AZ, Instance-id, Memory
   with_placement_strategy = "${var.with_placement_strategy}"
+
   # container_name sets the name of the container, this is used for the load balancer section inside the ecs_service to connect to a container_name defined inside the 
   # task definition, container_port sets the port for the same container.
   container_name = "${var.container_name}"
+
   container_port = "${var.container_port}"
 
   # This way we force the aws_lb_listener_rule to have finished before creating the ecs_service

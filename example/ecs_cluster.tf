@@ -71,8 +71,7 @@ EOF
 }
 
 module "ecs_cluster" {
-  source  = "blinkist/airship-ecs-cluster/aws"
-  version = "0.5.1"
+  source = "git::https://github.com/bitflight-public/terraform-aws-airship-ecs-cluster.git"
 
   # name is re-used as a unique identifier for the creation of different resources
   name = "${local.ecs_cluster_name}"
@@ -113,10 +112,10 @@ module "ecs_cluster" {
 
   # ecs_instance_scaling_create defines if we set autscaling for the autoscaling group
   # NB! NB! A draining lambda ARN needs to be defined !!
-  ecs_instance_scaling_create = true
+  ecs_instance_scaling_create = false
 
   # The lambda function which takes care of draining the ecs instance
-  ecs_instance_draining_lambda_arn = "${module.ecs_draining.lambda_function_arn}"
+  ecs_instance_draining_lambda_arn = "" //"${module.ecs_draining.lambda_function_arn}"
 
   # ecs_instance_scaling_properties defines how the ECS Cluster scales up / down
   ecs_instance_scaling_properties = [
