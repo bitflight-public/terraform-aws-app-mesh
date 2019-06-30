@@ -50,26 +50,24 @@ module "app_mesh" {
     },
   ]
 
-  virtual_route_http_config_count = "3"
+  ## The virtual route http config is set up as a list of maps
+  ## of lists because in tf 0.11 maps cant contain mixed types.
+  virtual_route_http_virtual_router_name = "colorteller-vr"
 
-  virtual_route_http_config = [
+  virtual_route_http_match_prefix = "/"
+
+  virtual_route_http_weighted_targets = [
     {
-      "virtual_router_name"          = "colorteller-vr"
-      "match_prefix"                 = "/"
-      "weighted_target_virtual_node" = "colorteller-red-vn"
-      "weighted_target_weight"       = "10"
+      "virtual_node" = "colorteller-red-vn"
+      "weight"       = "10"
     },
     {
-      "virtual_router_name"          = "colorteller-vr"
-      "match_prefix"                 = "/"
-      "weighted_target_virtual_node" = "colorteller-blue-vn"
-      "weighted_target_weight"       = "10"
+      "virtual_node" = "colorteller-blue-vn"
+      "weight"       = "10"
     },
     {
-      "virtual_router_name"          = "colorteller-vr"
-      "match_prefix"                 = "/"
-      "weighted_target_virtual_node" = "colorteller-white-vn"
-      "weighted_target_weight"       = "10"
+      "virtual_node" = "colorteller-white-vn"
+      "weight"       = "10"
     },
   ]
 

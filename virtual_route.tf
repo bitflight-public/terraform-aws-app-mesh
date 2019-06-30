@@ -1,40 +1,32 @@
-variable "virtual_route_http_config_count" {
-  default = "0"
+variable "virtual_route_http_virtual_router_name" {
+  type    = "string"
+  default = ""
 }
 
-variable "virtual_route_http_config" {
+variable "virtual_route_http_match_prefix" {
+  type    = "string"
+  default = "/"
+}
+
+variable "virtual_route_http_weighted_targets" {
   type    = "list"
   default = []
-
-  description = <<EOF
-```hcl
-  virtual_route_http_config = [{
-    "virtual_router_name"          = "gateway-vr"
-    "match_prefix"                 = "/"
-    "weighted_target_virtual_node" = "colorteller-red-vn"
-    "weighted_target_weight"       = "10"
-  }]
-```
-EOF
 }
 
 resource "aws_appmesh_route" "default" {
-  count               = "${var.virtual_route_http_config_count}"
-  name                = "${format("%s%s%s%sroute", lookup(var.virtual_route_http_config[count.index], "virtual_router_name"), module.label.delimiter, lookup(var.virtual_route_http_config[count.index], "weighted_target_virtual_node", "/"), module.label.delimiter)}"
+  count               = "${var.virtual_route_http_virtual_router_name != "" ? 1 : 0}"
+  name                = "${format("%s%sroute", var.virtual_route_http_virtual_router_name, module.label.delimiter)}"
   mesh_name           = "${local.app_mesh_id}"
-  virtual_router_name = "${lookup(var.virtual_route_http_config[count.index], "virtual_router_name")}"
+  virtual_router_name = "${var.virtual_route_http_virtual_router_name}"
 
   spec {
     http_route {
       match {
-        prefix = "${lookup(var.virtual_route_http_config[count.index], "match_prefix", "/")}"
+        prefix = "${var.virtual_route_http_match_prefix}"
       }
 
       action {
-        weighted_target {
-          virtual_node = "${lookup(var.virtual_route_http_config[count.index], "weighted_target_virtual_node", "/")}"
-          weight       = "${lookup(var.virtual_route_http_config[count.index], "weighted_target_weight", "/")}"
-        }
+        weighted_target = ["${var.virtual_route_http_weighted_targets}"]
       }
     }
   }
