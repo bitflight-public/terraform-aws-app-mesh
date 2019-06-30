@@ -486,6 +486,35 @@ variable "health_check_grace_period_seconds" {
   default     = 300
 }
 
+variable "task_proxy_configuration_type" {
+  default = "APPMESH"
+}
+
+variable "task_proxy_configuration_container_name" {
+  default = "envoy"
+}
+
+variable "task_proxy_configuration_properties_app_ports" {
+  default = "9080"
+}
+
+variable "task_proxy_configuration_properties_egress_ignored_ips" {
+  default = "169.254.170.2,169.254.169.254"
+}
+
+variable "task_proxy_configuration_properties_ignored_uid" {
+  default = "1337"
+}
+
+variable "task_proxy_configuration_properties_proxy_egress_port" {
+  default = "15001"
+}
+
+variable "task_proxy_configuration_properties_proxy_ingress_port" {
+  default = "15000"
+}
+
 variable "app_mesh_enabled" {
-  default = false
+  description = "If not false, enable the aws app mesh proxy"
+  default     = "false"
 }

@@ -92,7 +92,7 @@ variable "task_proxy_configuration_container_name" {
 }
 
 variable "task_proxy_configuration_properties_app_ports" {
-  default = "8080"
+  default = "9080"
 }
 
 variable "task_proxy_configuration_properties_egress_ignored_ips" {

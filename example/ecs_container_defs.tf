@@ -46,12 +46,12 @@ module "container_definition_gateway" {
   container_name             = "app"
   container_image            = "${module.build_docker_images.repository_urls["gateway"]}"
   app_mesh_enabled           = "true"
-  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/gateway-vn"
+  app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorgateway-vn"
 
   log_options = {
     "awslogs-region"        = "${data.aws_region.current.name}"
     "awslogs-group"         = "${aws_cloudwatch_log_group.app.name}"
-    "awslogs-stream-prefix" = "app"
+    "awslogs-stream-prefix" = "gateway"
   }
 
   container_port = "${var.colorteller_port}"
@@ -60,8 +60,8 @@ module "container_definition_gateway" {
 
   container_envvars = {
     SERVER_PORT           = "${var.colorteller_port}"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
-    TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
+    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, var.colorteller_port)}"
+    TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, var.tcpecho_port)}"
     STAGE                 = "${var.STAGE}"
   }
 }
@@ -69,7 +69,7 @@ module "container_definition_gateway" {
 module "container_definition_colorteller_red" {
   source = "./modules/ecs_container_definition"
 
-  container_name             = "colorteller"
+  container_name             = "app"
   container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
   app_mesh_enabled           = "true"
   app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-red-vn"
@@ -85,25 +85,16 @@ module "container_definition_colorteller_red" {
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "${var.colorteller_port}"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
-    TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
-    STAGE                 = "${var.STAGE}"
-  }
-
-  log_options = {
-    "awslogs-region" = "us-west-2"
-
-    "awslogs-group" = "default"
-
-    "awslogs-stream-prefix" = "default"
+    SERVER_PORT = "${var.colorteller_port}"
+    COLOR       = "red"
+    STAGE       = "${var.STAGE}"
   }
 }
 
 module "container_definition_colorteller_blue" {
   source = "./modules/ecs_container_definition"
 
-  container_name             = "colorteller"
+  container_name             = "app"
   container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
   app_mesh_enabled           = "true"
   app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-blue-vn"
@@ -119,17 +110,16 @@ module "container_definition_colorteller_blue" {
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "${var.colorteller_port}"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
-    TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
-    STAGE                 = "${var.STAGE}"
+    SERVER_PORT = "${var.colorteller_port}"
+    COLOR       = "blue"
+    STAGE       = "${var.STAGE}"
   }
 }
 
 module "container_definition_colorteller_white" {
   source = "./modules/ecs_container_definition"
 
-  container_name             = "colorteller"
+  container_name             = "app"
   container_image            = "${module.build_docker_images.repository_urls["colorteller"]}"
   app_mesh_enabled           = "true"
   app_mesh_virtual_node_name = "mesh/${module.app_mesh.mesh_id}/virtualNode/colorteller-white-vn"
@@ -145,9 +135,8 @@ module "container_definition_colorteller_white" {
   protocol       = "tcp"
 
   container_envvars = {
-    SERVER_PORT           = "${var.colorteller_port}"
-    COLOR_TELLER_ENDPOINT = "${format("%s.%s:%s", "colorteller", aws_service_discovery_private_dns_namespace.default.name, "${var.colorteller_port}")}"
-    TCP_ECHO_ENDPOINT     = "${format("%s.%s:%s", "tcpecho", aws_service_discovery_private_dns_namespace.default.name, "2701")}"
-    STAGE                 = "${var.STAGE}"
+    SERVER_PORT = "${var.colorteller_port}"
+    COLOR       = "white"
+    STAGE       = "${var.STAGE}"
   }
 }

@@ -36,7 +36,7 @@ module "app_mesh" {
       service_discovery_hostname_prefix = "tcpecho"
       service_name                      = "tcpecho-vn"
       port                              = "${var.tcpecho_port}"
-      protocol                          = "http"
+      protocol                          = "tcp"
     },
   ]
 
@@ -44,22 +44,13 @@ module "app_mesh" {
 
   virtual_router_config = [
     {
-      "virtual_router_name" = "colorteller-vr"          // If not provided, uses the index number of the count as the suffix
-      "port"                = "${var.colorteller_port}" // The port used for the port mapping
+      "virtual_router_name" = "colorteller-vr"
+      "port"                = "${var.colorteller_port}"
       "protocol"            = "http"                    // The protocol used for the port mapping. Valid values are http and tcp
     },
   ]
 
-  virtual_service_router_config_count = "1"
-
-  virtual_service_router_config = [
-    {
-      "virtual_service_name_prefix"  = "colorteller"
-      "provider_virtual_router_name" = "colorteller-vr"
-    },
-  ]
-
-  virtual_route_http_config_count = "2"
+  virtual_route_http_config_count = "3"
 
   virtual_route_http_config = [
     {
@@ -82,6 +73,15 @@ module "app_mesh" {
     },
   ]
 
+  virtual_service_router_config_count = "1"
+
+  virtual_service_router_config = [
+    {
+      "virtual_service_name_prefix"  = "colorteller"
+      "provider_virtual_router_name" = "colorteller-vr"
+    },
+  ]
+
   virtual_service_node_config_count = "1"
 
   virtual_service_node_config = [
@@ -95,7 +95,7 @@ module "app_mesh" {
 
   virtual_backend_nodes = [{
     backend_virtual_service_hostname_prefixes = "tcpecho,colorteller"
-    service_discovery_hostname_prefix         = "colorteller"
+    service_discovery_hostname_prefix         = "colorgateway"
     service_name                              = "colorgateway-vn"
     port                                      = "${var.colorteller_port}"
     protocol                                  = "http"

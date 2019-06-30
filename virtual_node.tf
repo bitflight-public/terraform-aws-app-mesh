@@ -126,9 +126,9 @@ This can support up to 2 nodes.
 ```
 virtual_backend_nodes = [{
     backend_virtual_service_hostname_prefixes = "tcpecho,colorteller"
-    service_discovery_hostname_prefix         = "colorteller"
+    service_discovery_hostname_prefix         = "colorgateway"
     service_name                              = "colorgateway-vn"
-    port                                      = "8080"
+    port                                      = "9080"
     protocol                                  = "http"
 }]
 ```

@@ -8,11 +8,11 @@ module "label_colorteller_red" {
 module "colorteller_service_red" {
   source = "./modules/ecs_service"
 
-  create           = true
-  app_mesh_enabled = true
+  create           = "true"
+  app_mesh_enabled = "true"
 
   # Container name 
-  container_name                                                    = "colorteller"
+  container_name                                                    = "app"
   context                                                           = "${module.label_colorteller_red.context}"
   container_definition_json                                         = "${module.container_definition_colorteller_red.json}"
   live_task_lookup_type                                             = "lambda"
@@ -42,7 +42,8 @@ module "colorteller_service_red" {
   container_memory = "128"
 
   # port defines the needed port of the container
-  container_port = "${var.colorteller_port}"
+  container_port                                = "${var.colorteller_port}"
+  task_proxy_configuration_properties_app_ports = "${var.colorteller_port}"
 
   # scheduling_strategy defaults to REPLICA
   scheduling_strategy = "REPLICA"
@@ -51,23 +52,10 @@ module "colorteller_service_red" {
   with_placement_strategy = false
 
   # load_balancing_type is either "none", "network","application"
-  load_balancing_type = "none"
-
-  #   ## load_balancing_properties map defines the map for services hooked to a load balancer
-  #   load_balancing_properties_route53_zone_id      = "${aws_route53_zone.this.zone_id}"
-  #   load_balancing_properties_route53_custom_name  = "service-web"
-  #   load_balancing_properties_lb_vpc_id            = "${data.aws_vpc.selected.id}"
-  #   load_balancing_properties_target_group_port    = "${var.echo_port}"
-  #   load_balancing_properties_nlb_listener_port    = "${var.echo_port}"
-  #   load_balancing_properties_deregistration_delay = 0
-  #   load_balancing_properties_lb_arn               = "${aws_lb.this.arn}"
-  #   load_balancing_properties_cognito_auth_enabled = false
-  #   load_balancing_properties_route53_record_type  = "ALIAS"
-  load_balancing_properties_lb_arn = "${aws_lb.this.arn}"
-
+  load_balancing_type                           = "none"
+  load_balancing_properties_lb_arn              = "${aws_lb.this.arn}"
   load_balancing_properties_route53_record_type = "NONE"
-
-  load_balancing_properties_route53_zone_id = "ABC"
+  load_balancing_properties_route53_zone_id     = "ABC"
 
   # deployment_controller_type sets the deployment type
   # ECS for Rolling update, and CODE_DEPLOY for Blue/Green deployment via CodeDeploy
@@ -87,11 +75,11 @@ module "label_colorteller_blue" {
 module "colorteller_service_blue" {
   source = "./modules/ecs_service"
 
-  create           = true
-  app_mesh_enabled = true
+  create           = "true"
+  app_mesh_enabled = "true"
 
   # Container name 
-  container_name                                                    = "colorteller"
+  container_name                                                    = "app"
   context                                                           = "${module.label_colorteller_blue.context}"
   container_definition_json                                         = "${module.container_definition_colorteller_blue.json}"
   live_task_lookup_type                                             = "lambda"
@@ -121,7 +109,8 @@ module "colorteller_service_blue" {
   container_memory = "128"
 
   # port defines the needed port of the container
-  container_port = "${var.colorteller_port}"
+  container_port                                = "${var.colorteller_port}"
+  task_proxy_configuration_properties_app_ports = "${var.colorteller_port}"
 
   # scheduling_strategy defaults to REPLICA
   scheduling_strategy = "REPLICA"
@@ -130,23 +119,10 @@ module "colorteller_service_blue" {
   with_placement_strategy = false
 
   # load_balancing_type is either "none", "network","application"
-  load_balancing_type = "none"
-
-  #   ## load_balancing_properties map defines the map for services hooked to a load balancer
-  #   load_balancing_properties_route53_zone_id      = "${aws_route53_zone.this.zone_id}"
-  #   load_balancing_properties_route53_custom_name  = "service-web"
-  #   load_balancing_properties_lb_vpc_id            = "${data.aws_vpc.selected.id}"
-  #   load_balancing_properties_target_group_port    = "${var.echo_port}"
-  #   load_balancing_properties_nlb_listener_port    = "${var.echo_port}"
-  #   load_balancing_properties_deregistration_delay = 0
-  #   load_balancing_properties_lb_arn               = "${aws_lb.this.arn}"
-  #   load_balancing_properties_cognito_auth_enabled = false
-  #   load_balancing_properties_route53_record_type  = "ALIAS"
-  load_balancing_properties_lb_arn = "${aws_lb.this.arn}"
-
+  load_balancing_type                           = "none"
+  load_balancing_properties_lb_arn              = "${aws_lb.this.arn}"
   load_balancing_properties_route53_record_type = "NONE"
-
-  load_balancing_properties_route53_zone_id = "ABC"
+  load_balancing_properties_route53_zone_id     = "ABC"
 
   # deployment_controller_type sets the deployment type
   # ECS for Rolling update, and CODE_DEPLOY for Blue/Green deployment via CodeDeploy
@@ -159,18 +135,18 @@ module "colorteller_service_blue" {
 module "label_colorteller_white" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
   attributes  = ["white"]
-  label_order = ["name", "attributes"]
+  label_order = ["name"]                                                                      //, "attributes"]
   context     = "${module.label.context}"
 }
 
 module "colorteller_service_white" {
   source = "./modules/ecs_service"
 
-  create           = true
-  app_mesh_enabled = true
+  create           = "true"
+  app_mesh_enabled = "true"
 
   # Container name 
-  container_name                                                    = "colorteller"
+  container_name                                                    = "app"
   context                                                           = "${module.label_colorteller_white.context}"
   container_definition_json                                         = "${module.container_definition_colorteller_white.json}"
   live_task_lookup_type                                             = "lambda"
@@ -200,7 +176,8 @@ module "colorteller_service_white" {
   container_memory = "128"
 
   # port defines the needed port of the container
-  container_port = "${var.colorteller_port}"
+  container_port                                = "${var.colorteller_port}"
+  task_proxy_configuration_properties_app_ports = "${var.colorteller_port}"
 
   # scheduling_strategy defaults to REPLICA
   scheduling_strategy = "REPLICA"
@@ -209,23 +186,10 @@ module "colorteller_service_white" {
   with_placement_strategy = false
 
   # load_balancing_type is either "none", "network","application"
-  load_balancing_type = "none"
-
-  #   ## load_balancing_properties map defines the map for services hooked to a load balancer
-  #   load_balancing_properties_route53_zone_id      = "${aws_route53_zone.this.zone_id}"
-  #   load_balancing_properties_route53_custom_name  = "service-web"
-  #   load_balancing_properties_lb_vpc_id            = "${data.aws_vpc.selected.id}"
-  #   load_balancing_properties_target_group_port    = "${var.echo_port}"
-  #   load_balancing_properties_nlb_listener_port    = "${var.echo_port}"
-  #   load_balancing_properties_deregistration_delay = 0
-  #   load_balancing_properties_lb_arn               = "${aws_lb.this.arn}"
-  #   load_balancing_properties_cognito_auth_enabled = false
-  #   load_balancing_properties_route53_record_type  = "ALIAS"
-  load_balancing_properties_lb_arn = "${aws_lb.this.arn}"
-
+  load_balancing_type                           = "none"
+  load_balancing_properties_lb_arn              = "${aws_lb.this.arn}"
   load_balancing_properties_route53_record_type = "NONE"
-
-  load_balancing_properties_route53_zone_id = "ABC"
+  load_balancing_properties_route53_zone_id     = "ABC"
 
   # deployment_controller_type sets the deployment type
   # ECS for Rolling update, and CODE_DEPLOY for Blue/Green deployment via CodeDeploy
@@ -245,7 +209,7 @@ resource "aws_lb_listener" "this" {
 
     fixed_response {
       content_type = "text/plain"
-      message_body = "I'm not crying, you're crying."
+      message_body = "I'm not crying, you're crying. ${module.label_gateway.id}"
       status_code  = "200"
     }
   }
@@ -253,24 +217,30 @@ resource "aws_lb_listener" "this" {
 
 module "label_gateway" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
-  attributes  = ["gw"]
-  label_order = ["name", "attributes"]
+  name        = "colorgateway"
+  label_order = ["name"]
   context     = "${module.label.context}"
 }
 
 module "gateway_service" {
   source = "./modules/ecs_service"
 
-  create           = true
-  app_mesh_enabled = true
+  create           = "true"
+  app_mesh_enabled = "true"
 
-  context                                  = "${module.label_gateway.context}"
-  container_definition_json                = "${module.container_definition_gateway.json}"
-  awsvpc_enabled                           = true
-  awsvpc_subnets                           = ["${module.dynamic_subnets.private_subnet_ids}"]
-  awsvpc_security_group_ids                = ["${aws_security_group.ecs_task_sg.id}"]
-  capacity_properties_desired_min_capacity = "1"
-  capacity_properties_desired_capacity     = "1"
+  context                                                           = "${module.label_gateway.context}"
+  container_definition_json                                         = "${module.container_definition_gateway.json}"
+  service_discovery_enabled                                         = true
+  service_discovery_properties_namespace_id                         = "${aws_service_discovery_private_dns_namespace.default.id}"
+  service_discovery_properties_dns_ttl                              = "60"
+  service_discovery_properties_dns_type                             = "A"
+  service_discovery_properties_routing_policy                       = "MULTIVALUE"
+  service_discovery_properties_healthcheck_custom_failure_threshold = "2"
+  awsvpc_enabled                                                    = true
+  awsvpc_subnets                                                    = ["${module.dynamic_subnets.private_subnet_ids}"]
+  awsvpc_security_group_ids                                         = ["${aws_security_group.ecs_task_sg.id}"]
+  capacity_properties_desired_min_capacity                          = "1"
+  capacity_properties_desired_capacity                              = "1"
 
   # ecs_cluster_id is the cluster to which the ECS Service will be added.
   ecs_cluster_id = "${module.ecs_cluster.cluster_id}"
@@ -291,7 +261,8 @@ module "gateway_service" {
   container_memory = "128"
 
   # port defines the needed port of the container
-  container_port = "${var.colorteller_port}"
+  container_port                                = "${var.colorteller_port}"
+  task_proxy_configuration_properties_app_ports = "${var.colorteller_port}"
 
   # scheduling_strategy defaults to REPLICA
   scheduling_strategy = "REPLICA"
@@ -326,16 +297,16 @@ module "gateway_service" {
 
 module "label_tcpecho" {
   source      = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.11.1"
-  attributes  = ["tcpecho"]
-  label_order = ["name", "attributes"]
+  name        = "tcpecho"
+  label_order = ["name"]
   context     = "${module.label.context}"
 }
 
 module "tcpecho_service" {
   source = "./modules/ecs_service"
 
-  create           = true
-  app_mesh_enabled = false
+  create           = "true"
+  app_mesh_enabled = "false"
 
   # Container name 
   container_name                                                    = "tcpecho"

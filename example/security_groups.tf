@@ -37,6 +37,15 @@ resource "aws_security_group_rule" "allow_lb_to_instance" {
   security_group_id        = "${aws_security_group.ecs_instance_sg.id}"
 }
 
+resource "aws_security_group_rule" "allow_vpc_to_instance" {
+  type              = "ingress"
+  from_port         = "0"
+  to_port           = "65535"
+  protocol          = "-1"
+  cidr_blocks       = ["${var.vpc_cidr}"]
+  security_group_id = "${aws_security_group.ecs_instance_sg.id}"
+}
+
 resource "aws_security_group_rule" "allow_egress_from_instance" {
   type              = "egress"
   from_port         = "0"
@@ -71,6 +80,15 @@ resource "aws_security_group_rule" "allow_lb_to_task" {
   protocol                 = "tcp"
   source_security_group_id = "${aws_security_group.lb_sg.id}"
   security_group_id        = "${aws_security_group.ecs_task_sg.id}"
+}
+
+resource "aws_security_group_rule" "allow_task_to_task" {
+  type              = "ingress"
+  from_port         = "0"
+  to_port           = "65535"
+  protocol          = "tcp"
+  self              = "true"
+  security_group_id = "${aws_security_group.ecs_task_sg.id}"
 }
 
 resource "aws_security_group" "admin_sg" {

@@ -48,7 +48,7 @@ module "iam" {
 
   # The container uses secrets and needs a task execution role to get access to them
   container_secrets_enabled = "${var.container_secrets_enabled}"
-  app_mesh_enabled          = "${var.app_mesh_enabled}"
+  app_mesh_enabled          = "${var.app_mesh_enabled == "true" || var.app_mesh_enabled == true ? true : false}"
 }
 
 ## The lb-handling sub-module creates everything regarding the connection of an ecs service to an Application Load Balancer
@@ -247,8 +247,15 @@ module "ecs_task_definition" {
   docker_volume = "${var.docker_volume}"
 
   # list of host paths to add as volumes to the task
-  host_path_volumes = "${var.host_path_volumes}"
-  app_mesh_enabled  = "${var.app_mesh_enabled}"
+  host_path_volumes                                      = "${var.host_path_volumes}"
+  app_mesh_enabled                                       = "${(var.app_mesh_enabled == "true" || var.app_mesh_enabled == true ) ? true : false}"
+  task_proxy_configuration_type                          = "${var.task_proxy_configuration_type}"
+  task_proxy_configuration_container_name                = "${var.task_proxy_configuration_container_name}"
+  task_proxy_configuration_properties_app_ports          = "${var.task_proxy_configuration_properties_app_ports}"
+  task_proxy_configuration_properties_egress_ignored_ips = "${var.task_proxy_configuration_properties_egress_ignored_ips}"
+  task_proxy_configuration_properties_ignored_uid        = "${var.task_proxy_configuration_properties_ignored_uid}"
+  task_proxy_configuration_properties_proxy_egress_port  = "${var.task_proxy_configuration_properties_proxy_egress_port}"
+  task_proxy_configuration_properties_proxy_ingress_port = "${var.task_proxy_configuration_properties_proxy_ingress_port}"
 }
 
 #

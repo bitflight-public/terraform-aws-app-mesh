@@ -68,7 +68,7 @@ locals {
       options   = "${var.log_options}"
     }
   },
-    "${local.with_app_mesh["${var.app_mesh_enabled}"]}",
+    "${local.with_app_mesh[var.app_mesh_enabled]}",
   ]
 
   with_app_mesh = {
